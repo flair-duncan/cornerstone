@@ -1,4 +1,4 @@
-<section class="productCarousel"
+<section
     data-list-name="{{list}}"
     data-slick='{
         "infinite": false,
@@ -25,7 +25,7 @@
     }'
 >
     {{#each products}}
-    <div data-product-slide class="productCarousel-slide">
+    <div data-product-slide>
         {{> components/products/card settings=../settings theme_settings=../theme_settings customer=../customer event="list" position=(add @index 1)}}
     </div>
     {{/each}}

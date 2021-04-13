@@ -1,18 +1,18 @@
-<div class="modal-body">
-    <h1 class="facet-quick-heading">
+<div>
+    <h1>
         {{all_facets}}
     </h1>
-    <div class="form-field" id="facetedSearch-filterItems">
-        <input class="form-input" type="search" placeholder="{{lang 'forms.search.search'}}">
+    <div id="facetedSearch-filterItems">
+        <input type="search" placeholder="{{lang 'forms.search.search'}}">
     </div>
-    <ul class="navList facetedSearch-optionColumns">
+    <ul>
         {{#each facets}}
             {{#if facet '===' ../all_facets}}
                 {{#each items}}
-                    <li class="navList-item">
+                    <li>
                         <a
                         href="{{url}}"
-                        class="navList-action{{#if selected}} is-active{{/if}}"
+                       
                         rel="nofollow"
                         data-id="{{id}}"
                         data-faceted-search-facet

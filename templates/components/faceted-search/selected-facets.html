@@ -1,14 +1,14 @@
-<div class="facetedSearch-refineFilters sidebarBlock">
-    <h2 class="sidebarBlock-heading">
+<div>
+    <h2>
         {{lang 'search.faceted.selected.title'}}
     </h2>
 
     {{#if items}}
-        <ul class="inlineList inlineList--labels">
+        <ul>
             {{#each items}}
                 <li>
                     <a href="{{url}}"
-                       class="facetLabel"
+                      
                        rel="nofollow"
                        data-faceted-search-facet
                     >
@@ -18,7 +18,7 @@
                             {{{sanitize title}}}
                         {{/if}}
 
-                        <svg class="icon">
+                        <svg>
                             <use xlink:href="#icon-close" />
                         </svg>
                     </a>

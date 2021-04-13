@@ -19,16 +19,16 @@ category:
 {{#partial "page"}}
     {{> components/amp/common/header }}
     {{#if category.image}}
-        <div class="categoryView-img">
+        <div>
             <amp-img src="{{getImage category.image 'zoom_size'}}" width="300" height="150" layout="responsive" alt="{{category.name}}"></amp-img>
         </div>
     {{/if}}
-    <div class="container">
-        <h1 class="categoryView-title">
+    <div>
+        <h1>
             {{category.name}}
         </h1>
     </div>
-    <main class="page-content" id="product-listing-container">
+    <main id="product-listing-container">
         {{#if category.products}}
             {{> components/amp/category/product-listing}}
         {{else}}

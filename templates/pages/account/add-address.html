@@ -3,35 +3,35 @@
     {{> components/common/breadcrumbs breadcrumbs=breadcrumbs}}
 
     {{#if forms.address.address_id}}
-        <h2 class="page-heading">{{lang 'forms.address.edit.heading'}}</h2>
+        <h2>{{lang 'forms.address.edit.heading'}}</h2>
     {{else}}
-        <h2 class="page-heading">{{lang 'forms.address.add.heading'}}</h2>
+        <h2>{{lang 'forms.address.add.heading'}}</h2>
     {{/if}}
 
     {{> components/account/navigation account_page='addresses'}}
 
-    <div class="account account--fixed">
+    <div>
 
         {{#if forms.address.error}}
             {{> components/common/alert/alert-error forms.address.error}}
         {{/if}}
 
-        <div class="account-body">
+        <div>
 
-            <form action="{{forms.address.action}}" data-address-form class="form" method="post">
+            <form action="{{forms.address.action}}" data-address-form method="post">
                 {{#if forms.address.address_id }}
                     <input type="hidden" name="shipid" value="{{forms.address.address_id}}">
                 {{/if}}
-                <fieldset class="form-fieldset">
-                    <div class="form-row form-row--half">
+                <fieldset>
+                    <div>
                         {{#each forms.address.shipping_fields }}
                             {{{dynamicComponent 'components/common/forms'}}}
                         {{/each}}
                     </div>
                 </fieldset>
-                <div class="form-actions">
-                    <input type="submit" class="button button--primary" value="{{lang 'forms.address.submit_value'}}">
-                    <a href="{{urls.account.addresses}}" class="button">{{lang 'common.cancel'}}</a>
+                <div>
+                    <input type="submit" value="{{lang 'forms.address.submit_value'}}">
+                    <a href="{{urls.account.addresses}}">{{lang 'common.cancel'}}</a>
                     {{inject 'required' (lang 'common.required')}}
                     {{inject 'state_error' (lang 'errors.state_error')}}
                 </div>

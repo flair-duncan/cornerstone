@@ -1,5 +1,5 @@
-<div class="form-field" data-product-attribute="set-rectangle" role="radiogroup" aria-labelledby="rectangle-group-label">
-    <label class="form-label form-label--alternate form-label--inlineSmall" id="rectangle-group-label">
+<div data-product-attribute="set-rectangle" role="radiogroup" aria-labelledby="rectangle-group-label">
+    <label id="rectangle-group-label">
         {{this.display_name}}:
         <span data-option-value></span>
 
@@ -8,22 +8,22 @@
 
     {{#unless required}}
         <input
-            class="form-radio"
+           
             type="radio"
             id="attribute_rectangle__{{../id}}_none"
             name="attribute[{{../id}}]"
             value=""
             checked="{{#if defaultValue '==' ''}}checked{{/if}}"
         >
-        <label class="form-option" for="attribute_rectangle__{{../id}}_none">
-            <span class="form-option-variant">{{lang 'products.none'}}</span>
+        <label for="attribute_rectangle__{{../id}}_none">
+            <span>{{lang 'products.none'}}</span>
         </label>
     {{/unless}}
 
     {{#each this.values}}
-    <div class="form-option-wrapper">    
+    <div>    
         <input
-            class="form-radio"
+           
             type="radio"
             id="attribute_rectangle__{{../id}}_{{id}}"
             name="attribute[{{../id}}]"
@@ -34,8 +34,8 @@
             {{/if}}
             {{#if ../required}}required{{/if}}
         >
-        <label class="form-option" for="attribute_rectangle__{{../id}}_{{id}}" data-product-attribute-value="{{id}}">
-            <span class="form-option-variant">{{this.label}}</span>
+        <label for="attribute_rectangle__{{../id}}_{{id}}" data-product-attribute-value="{{id}}">
+            <span>{{this.label}}</span>
         </label>
     </div>
     {{/each}}

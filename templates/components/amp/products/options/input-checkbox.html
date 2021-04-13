@@ -1,20 +1,20 @@
-<div class="form-field" data-product-attribute="input-checkbox">
-    <label class="form-label form-label--alternate form-label--inlineSmall">
+<div data-product-attribute="input-checkbox">
+    <label>
         {{display_name}}:
 
         {{#if required}}
             <small>{{lang 'common.required'}}</small>
         {{/if}}
     </label>
-    <div class="form-option-wrapper">
+    <div>
         <input
-            class="form-checkbox"
+           
             type="checkbox"
             name="attribute[{{id}}]"
             id="attribute-{{id}}"
             value="{{value}}"
             {{#if checked}}checked{{/if}}
             {{#if required}}required{{/if}}>
-        <label class="form-label {{class}}" for="attribute-{{id}}">{{label}}</label>
+        <label for="attribute-{{id}}">{{label}}</label>
     </div>
 </div>

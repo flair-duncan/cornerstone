@@ -1,12 +1,12 @@
 {{#partial "page"}}
 
 {{> components/common/breadcrumbs breadcrumbs=breadcrumbs}}
-<h1 class="page-heading">{{lang 'account.messages.heading' }}</h1>
+<h1>{{lang 'account.messages.heading' }}</h1>
 {{> components/account/navigation account_page='messages'}}
 
-<main class="account account--fixed">
-    <div class="account-body">
-        <section class="account-content">
+<main>
+    <div>
+        <section>
             {{#if forms.inbox.error}}
                 {{> components/common/alert/alert-error forms.inbox.error}}
             {{/if}}

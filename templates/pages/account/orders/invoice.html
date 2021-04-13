@@ -3,28 +3,28 @@
 {{/partial}}
 
 {{#partial "page"}}
-    <div class="Invoice">
+    <div>
         <h1>
             {{#if settings.store_logo.image}}
                 {{#if theme_settings.logo_size '===' 'original'}}
-                    <img class="header-logo-image-unknown-size" src="{{getImage settings.store_logo.image 'logo_size'}}" alt="{{settings.store_logo.title}}" title="{{settings.store_logo.title}}">
+                    <img src="{{getImage settings.store_logo.image 'logo_size'}}" alt="{{settings.store_logo.title}}" title="{{settings.store_logo.title}}">
                 {{else}}
-                    <div class="header-logo-image-container">
-                        <img class="header-logo-image" data-sizes="auto" src="{{getImage settings.store_logo.image 'logo_size'}}" alt="{{settings.store_logo.title}}" title="{{settings.store_logo.title}}">
+                    <div>
+                        <img data-sizes="auto" src="{{getImage settings.store_logo.image 'logo_size'}}" alt="{{settings.store_logo.title}}" title="{{settings.store_logo.title}}">
                     </div>
                 {{/if}}
             {{else}}
-                <span class="header-logo-text">{{settings.store_logo.title}}</span>
+                <span>{{settings.store_logo.title}}</span>
             {{/if}}
         </h1>
-        <div class="InvoiceTitle">
+        <div>
             {{lang 'invoice.for_order' name=settings.store_name id=order.id}}
         </div>
 
         <address><strong>{{nl2br settings.address}}</strong></address>
 
-        <div class="AddressRow">
-            <div class="BillingAddress">
+        <div>
+            <div>
                 <h3>{{lang 'account.orders.details.bill_to'}}</h3>
                 <ul>
                     <li><strong>{{order.billing_address.full_name}}</strong></li>
@@ -40,7 +40,7 @@
             </div>
             {{#if order.shipping_address}}
                 {{#unless order.has_multiple_shipping_addresses}}
-                    <div class="ShippingAddress">
+                    <div>
                         <h3>{{lang 'account.orders.details.ship_to'}}</h3>
                         <ul>
                             <li><strong>{{order.shipping_address.full_name}}</strong></li>
@@ -58,51 +58,51 @@
             {{/if}}
         </div>
 
-        <div class="InvoiceDetails">
-            <div class="InvoiceDetailsLeft">
-                <div class="DetailRow">
-                    <div class="Label">{{lang 'invoice.order'}}</div>
-                    <div class="Value">#{{order.id}}</div>
+        <div>
+            <div>
+                <div>
+                    <div>{{lang 'invoice.order'}}</div>
+                    <div>#{{order.id}}</div>
                 </div>
-                <div class="DetailRow">
-                    <div class="Label">{{lang 'invoice.payment_method'}}</div>
-                    <div class="Value">{{order.payment_method}} ({{order.total.formatted}})</div>
+                <div>
+                    <div>{{lang 'invoice.payment_method'}}</div>
+                    <div>{{order.payment_method}} ({{order.total.formatted}})</div>
                 </div>
             </div>
-            <div class="InvoiceDetailsRight">
-                <div class="DetailRow">
-                    <div class="Label">{{lang 'invoice.order_date'}}</div>
-                    <div class="Value">{{order.date}}</div>
+            <div>
+                <div>
+                    <div>{{lang 'invoice.order_date'}}</div>
+                    <div>{{order.date}}</div>
                 </div>
                 {{#if order.shipping_method}}
-                    <div class="DetailRow">
-                        <div class="Label">{{lang 'invoice.shipping_method'}}</div>
-                        <div class="Value">{{order.shipping_method}}</div>
+                    <div>
+                        <div>{{lang 'invoice.shipping_method'}}</div>
+                        <div>{{order.shipping_method}}</div>
                     </div>
                 {{/if}}
             </div>
         </div>
 
-        <div class="InvoiceItems">
-            <h2 class="InvoiceHeading">{{lang 'invoice.order_items'}}</h2>
-            <table class="InvoiceTable">
+        <div>
+            <h2>{{lang 'invoice.order_items'}}</h2>
+            <table>
                 <thead>
                 <tr>
                     {{#if order.has_multiple_shipping_addresses}}
-                        <th class="ProductAddress">{{lang 'invoice.shipping_address'}}</th>
+                        <th>{{lang 'invoice.shipping_address'}}</th>
                     {{/if}}
-                    <th class="ProductQuantity">{{lang 'invoice.qty'}}</th>
-                    <th class="ProductSku">{{lang 'invoice.code'}}</th>
-                    <th class="ProductDetails">{{lang 'invoice.product_name'}}</th>
-                    <th class="ProductCost" align="right">{{lang 'invoice.price'}}</th>
-                    <th class="ProductTotal" align="right">{{lang 'invoice.total'}}</th>
+                    <th>{{lang 'invoice.qty'}}</th>
+                    <th>{{lang 'invoice.code'}}</th>
+                    <th>{{lang 'invoice.product_name'}}</th>
+                    <th align="right">{{lang 'invoice.price'}}</th>
+                    <th align="right">{{lang 'invoice.total'}}</th>
                 </tr>
                 </thead>
-                <tbody class="InvoiceItemList">
+                <tbody>
                 {{#each order.items}}
                     <tr>
                         {{#if ../order.has_multiple_shipping_addresses}}
-                            <td class="ProductAddress">
+                            <td>
                                 {{#each shipping_rows}}
                                     <div>{{address}}</div>
                                     <div>{{city}}, {{state}} {{zip}}</div>
@@ -110,69 +110,69 @@
                                 {{/each}}
                             </td>
                         {{/if}}
-                        <td class="ProductQuantity">{{quantity}}</td>
-                        <td class="ProductSku">{{sku}}</td>
-                        <td class="ProductDetails">
+                        <td>{{quantity}}</td>
+                        <td>{{sku}}</td>
+                        <td>
                             {{name}}
-                            <div class="ProductAttributes">
+                            <div>
 
                                 {{#each options}}
-                                    <div class="ConfigurableProductRow">
-                                        <div class="Label">{{name}}:</div>
-                                        <div class="Value"></div>
-                                        <div class="Value">{{{sanitize value}}}</div>
+                                    <div>
+                                        <div>{{name}}:</div>
+                                        <div></div>
+                                        <div>{{{sanitize value}}}</div>
                                     </div>
                                 {{/each}}
                             </div>
-                            <div class="ProductConfigurableFields">
+                            <div>
                                 {{#each customizations}}
-                                    <div class="ConfigurableProductRow">
-                                        <div class="Label">{{name}}:</div>
-                                        <div class="Value"></div>
-                                        <div class="Value">{{value}}</div>
+                                    <div>
+                                        <div>{{name}}:</div>
+                                        <div></div>
+                                        <div>{{value}}</div>
                                     </div>
                                 {{/each}}
                             </div>
                             {{#if gift_wrapping_name}}
-                                <div class="ProductGiftWrapping">
+                                <div>
                                     {{gift_wrapping_name}}
                                 </div>
                             {{/if}}
                             {{#if event_date}}
-                                <div class="ProductEventDate">
-                                    <div class="ConfigurableProductRow">
-                                        <div class="Label">{{event_date.name}}:</div>
-                                        <div class="Value"></div>
-                                        <div class="Value">{{event_date.date}}</div>
+                                <div>
+                                    <div>
+                                        <div>{{event_date.name}}:</div>
+                                        <div></div>
+                                        <div>{{event_date.date}}</div>
                                     </div>
                                 </div>
                             {{/if}}
                             {{#if pre_ordered}}
-                                <div class="ProductPreOrder">
-                                    <div class="ConfigurableProductRow">
-                                        <div class="Label">Preordered:</div>
-                                        <div class="Value">{{lang 'common.yes'}}</div>
+                                <div>
+                                    <div>
+                                        <div>Preordered:</div>
+                                        <div>{{lang 'common.yes'}}</div>
                                     </div>
                                 </div>
                             {{/if}}
                         </td>
-                        <td class="ProductCost">{{price.formatted}}</td>
-                        <td class="ProductTotal">{{total.formatted}}</td>
+                        <td>{{price.formatted}}</td>
+                        <td>{{total.formatted}}</td>
                     </tr>
                 {{/each}}
 
                 </tbody>
-                <tfoot class="InvoiceTotals">
+                <tfoot>
                 {{#each order.total_rows}}
-                    <tr class="InvoiceTotalRow">
-                        <td class="Title" colspan="{{#if ../order.has_multiple_shipping_addresses}}5{{else}}4{{/if}}">{{label}}</td>
-                        <td class="Total">{{value.formatted}}</td>
+                    <tr>
+                        <td colspan="{{#if ../order.has_multiple_shipping_addresses}}5{{else}}4{{/if}}">{{label}}</td>
+                        <td>{{value.formatted}}</td>
                     </tr>
                 {{/each}}
                 </tfoot>
             </table>
-            <div class="InvoiceComments">
-                <div class="InvoiceHeading">{{lang 'invoice.comments'}}</div>
+            <div>
+                <div>{{lang 'invoice.comments'}}</div>
                 <blockquote>
                     {{order.comments}}
                 </blockquote>

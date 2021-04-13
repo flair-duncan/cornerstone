@@ -1,17 +1,17 @@
-<h3 class="account-heading">{{lang 'account.messages.heading' }}</h3>
+<h3>{{lang 'account.messages.heading' }}</h3>
 
-<ul class="account-list">
+<ul>
     {{#each messages}}
-    <li class="account-listItem">
-        <div class="account-message">
-                <div class="account-orderStatus">
+    <li>
+        <div>
+                <div>
                     <span>{{date}}</span>
                 </div>
 
-                <h5 class="account-product-title {{#unless unread}}is-read{{/unless}}">
+                <h5>
                     {{subject}}
                 </h5>
-                <p class="{{#unless unread}}is-read{{/unless}}">
+                <p>
                     {{#if is_reply}}
                         {{lang 'account.messages.merchant_said' store_name=../settings.store_name}}
                     {{else}}

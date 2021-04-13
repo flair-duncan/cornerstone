@@ -1,7 +1,7 @@
-<footer class="amp-footer" role="contentinfo">
+<footer role="contentinfo">
     <article data-section-type="footer-webPages">
-        <h5 class="amp-footer-heading">{{lang 'footer.navigate'}}</h5>
-        <ul class="amp-footer-list">
+        <h5>{{lang 'footer.navigate'}}</h5>
+        <ul>
             {{#each pages}}
             <li>
                 <a href="{{url}}">{{name}}</a>
@@ -14,8 +14,8 @@
     </article>
 
     <article data-section-type="footer-categories">
-        <h5 class="amp-footer-heading">{{lang 'footer.categories'}}</h5>
-        <ul class="amp-footer-list">
+        <h5>{{lang 'footer.categories'}}</h5>
+        <ul>
             {{#each categories}}
                 <li>
                     <a href="{{url}}">{{name}}</a>
@@ -25,8 +25,8 @@
     </article>
 
     <article data-section-type="footer-brands">
-        <h5 class="amp-footer-heading">{{lang 'footer.brands'}}</h5>
-        <ul class="amp-footer-list">
+        <h5>{{lang 'footer.brands'}}</h5>
+        <ul>
             {{#each shop_by_brand}}
                 <li>
                     <a href="{{url}}">{{name}}</a>
@@ -37,7 +37,7 @@
     </article>
 
     <article data-section-type="storeInfo">
-        <h5 class="amp-footer-heading">{{lang 'footer.info'}}</h5>
+        <h5>{{lang 'footer.info'}}</h5>
         <address>{{nl2br settings.address}}</address>
         {{#if settings.phone_number}}
             <strong>{{lang 'footer.call_us' phone_number=settings.phone_number}}</strong>
@@ -48,7 +48,7 @@
             <p>{{lang 'footer.powered_by'}} <a href="http://bigcommerce.com?utm_source=merchant&amp;utm_medium=poweredbyBC" rel="nofollow">BigCommerce</a></p>
         {{/if}}
         {{#if theme_settings.show_copyright_footer}}
-            <p class="powered-by">&copy; {{settings.store_name}} </p>
+            <p>&copy; {{settings.store_name}} </p>
         {{/if}}
     </article>
 </footer>

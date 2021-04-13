@@ -1,18 +1,18 @@
-<div class="form-field" data-product-attribute="swatch" role="radiogroup" aria-labelledby="swatchGroup">
-    <label class="form-label form-label--alternate form-label--inlineSmall" id="swatchGroup">
+<div data-product-attribute="swatch" role="radiogroup" aria-labelledby="swatchGroup">
+    <label id="swatchGroup">
         {{this.display_name}}:
         <span data-option-value></span>
 
         {{> components/common/requireness-msg}}
     </label>
     <span 
-        class="swatch-option-message aria-description--hidden u-hidden">
+       >
         {{ lang 'products.swatch_option_announcement' swatch_name=this.display_name}}
     </span>
 
     {{#unless required}}
         <input
-            class="form-radio"
+           
             type="radio"
             name="attribute[{{../id}}]"
             value=""
@@ -20,14 +20,14 @@
             checked="{{#if defaultValue '==' ''}}checked{{/if}}"
             aria-label="{{lang 'products.none'}}"
         >
-        <label class="form-option form-option-swatch" for="attribute_swatch_{{../id}}_none">
+        <label for="attribute_swatch_{{../id}}_none">
             <span class='form-option-variant form-option-variant--none' title="{{lang 'products.none'}}">{{lang 'products.none'}}</span>
         </label>
     {{/unless}}
 
     {{#each this.values}}
-    <div class="form-option-wrapper">
-        <input class="form-radio"
+    <div>
+        <input
                type="radio"
                name="attribute[{{../id}}]"
                value="{{id}}"
@@ -36,7 +36,7 @@
                {{#if ../required}}required{{/if}}
                aria-label="{{this.label}}"
         >
-        <label class="form-option form-option-swatch" for="attribute_swatch_{{../id}}_{{id}}" data-product-attribute-value="{{id}}">
+        <label for="attribute_swatch_{{../id}}_{{id}}" data-product-attribute-value="{{id}}">
             {{#if image}}
                 <span class='form-option-variant form-option-variant--pattern' title="{{this.label}}" style="background-image: url('{{getImage image "swatch_option_size"}}');"></span>
             {{/if}}
@@ -55,8 +55,8 @@
                 {{/if}}
             {{/if}}
             {{#if pattern}}
-                <span class="form-option-expanded">
-                    <span class="form-option-image" style="background-image: url('{{getImage image 'core-swatch'}}');"></span>
+                <span>
+                    <span style="background-image: url('{{getImage image 'core-swatch'}}');"></span>
                 </span>
             {{/if}}
         </label>

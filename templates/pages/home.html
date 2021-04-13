@@ -25,7 +25,6 @@ blog:
         {{> components/common/alert/alert-info message}}
     {{/each}}
 
-<div class="main full">
     {{#if products.featured}}
         {{> components/products/featured products=products.featured columns=theme_settings.homepage_featured_products_column_count}}
     {{/if}}
@@ -40,6 +39,5 @@ blog:
         {{> components/products/new products=products.new columns=theme_settings.homepage_new_products_column_count}}
     {{/if}}
     {{{region name="home_below_new_products"}}}
-</div>
 {{/partial}}
 {{> layout/base}}

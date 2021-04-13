@@ -1,17 +1,15 @@
 {{#if children}}
-    <a class="navPages-action navPages-action-depth-max has-subMenu is-root{{#if is_active}} activePage{{/if}}"
+    <a
        href="{{url}}"
        data-collapsible="navPages-{{id}}"
        aria-label="{{name}}"
     >
         {{name}}
-        <i class="icon navPages-action-moreIcon" aria-hidden="true">
-            <svg><use xlink:href="#icon-chevron-down" /></svg>
-        </i>
+        {{> components/common/icon icon="chevron-down"}}
     </a>
     {{> components/common/navigation-dropdown}}
 {{else}}
-    <a class="navPages-action{{#if is_active}} activePage{{/if}}"
+    <a
        href="{{url}}"
        aria-label="{{name}}"
     >

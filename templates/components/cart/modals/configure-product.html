@@ -1,14 +1,14 @@
-<div class="modal-header">
+<div>
     <h2 
-        class="modal-header-title" 
+        
         data-product-variant 
         data-name="{{product_name}}"
         >
         {{lang 'cart.reconfigure_product' name=product_name}}
     </h2>
 </div>
-<div class="modal-body" data-product-option-change>
-    <div class="alertMessageBox" hidden>
+<div data-product-option-change>
+    <div hidden>
         {{> components/common/alert/alert-info}}
     </div>
 
@@ -20,8 +20,8 @@
             {{{dynamicComponent 'components/products/options'}}}
         {{/each}}
         </div>
-        <div class="form-actions">
-            <input class="button button--primary" type="submit" value="{{lang 'common.save'}}">
+        <div>
+            <input type="submit" value="{{lang 'common.save'}}">
         </div>
     </form>
 </div>

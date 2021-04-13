@@ -1,41 +1,35 @@
-<nav class="navUser">
+<nav>
     {{> components/common/currency-selector}}
 
-    <ul class="navUser-section navUser-section--alt">
+    <ul>
         {{#if customer.store_credit.value '>' 0}}
-            <li class="navUser-item">
-                <a class="navUser-action navUser-action--storeCredit"
+            <li>
+                <a
                    data-dropdown="storeCredit-dropdown"
                    data-options="align:bottom"
                    href="{{urls.cart}}"
                    aria-label="{{lang 'common.store_credit_overview' credit=customer.store_credit.formatted}}"
                 >
-                    <span class="navUser-action-divider">
+                    <span>
                         {{lang 'common.store_credit_overview' credit=customer.store_credit.formatted}}
                     </span>
                 </a>
-                <div class="dropdown-menu" id="storeCredit-dropdown" data-dropdown-content aria-hidden="true">
+                <div id="storeCredit-dropdown" data-dropdown-content aria-hidden="true">
                     {{{lang 'common.store_credit' store_credit=customer.store_credit.formatted}}}
                 </div>
             </li>
         {{/if}}
-        <li class="navUser-item">
-            <a class="navUser-action navUser-item--compare"
+        <li>
+            <a
                href="{{urls.compare}}"
                data-compare-nav
                aria-label="{{lang 'common.compare'}}"
             >
-                {{lang 'common.compare'}} <span class="countPill countPill--positive countPill--alt"></span>
+                {{lang 'common.compare'}} <span></span>
             </a>
         </li>
-        {{#if theme_settings.social_icon_placement_top}}
-            <li class="navUser-item navUser-item--social">
-                {{> components/common/social-links}}
-            </li>
-            <li class="navUser-item navUser-item--divider">|</li>
-        {{/if}}
-        <li class="navUser-item">
-            <button class="navUser-action navUser-action--quickSearch"
+        <li>
+            <button
                type="button"
                id="quick-search-expand"
                data-search="quickSearch"
@@ -46,8 +40,8 @@
             </button>
         </li>
         {{#if settings.gift_certificates_enabled}}
-            <li class="navUser-item">
-                <a class="navUser-action"
+            <li>
+                <a
                    href="{{urls.gift_certificate.purchase}}"
                    aria-label="{{lang 'common.gift_cert'}}"
                 >
@@ -55,30 +49,30 @@
                 </a>
             </li>
         {{/if}}
-        <li class="navUser-item navUser-item--account">
+        <li>
             {{#if customer}}
-                <a class="navUser-action"
+                <a
                    href="{{urls.account.index}}"
                    aria-label="{{lang 'common.account'}}"
                 >
                     {{lang 'common.account'}}
                 </a>
-                <a class="navUser-action"
+                <a
                    href="{{urls.auth.logout}}"
                    aria-label="{{lang 'common.logout'}}"
                 >
                     {{lang 'common.logout'}}
                 </a>
             {{else}}
-                <a class="navUser-action"
+                <a
                    href="{{urls.auth.login}}"
                    aria-label="{{lang 'common.login'}}"
                 >
                     {{lang 'common.login'}}
                 </a>
                 {{#if settings.account_creation_enabled}}
-                    <span class="navUser-or">{{lang 'common.or'}}</span>
-                    <a class="navUser-action"
+                    <span>{{lang 'common.or'}}</span>
+                    <a
                        href="{{urls.auth.create_account}}"
                        aria-label="{{lang 'common.sign_up'}}"
                     >
@@ -87,22 +81,22 @@
                 {{/if}}
             {{/if}}
         </li>
-        <li class="navUser-item navUser-item--cart">
-            <a class="navUser-action"
+        <li>
+            <a
                data-cart-preview
                data-dropdown="cart-preview-dropdown"
                data-options="align:right"
                href="{{urls.cart}}"
                aria-label="{{lang 'cart.nav_aria_label'}}"
             >
-                <span class="navUser-item-cartLabel">{{lang 'common.cart'}}</span>
-                <span class="countPill cart-quantity"></span>
+                <span>{{lang 'common.cart'}}</span>
+                <span></span>
             </a>
 
-            <div class="dropdown-menu" id="cart-preview-dropdown" data-dropdown-content aria-hidden="true"></div>
+            <div id="cart-preview-dropdown" data-dropdown-content aria-hidden="true"></div>
         </li>
     </ul>
-    <div class="dropdown dropdown--quickSearch" id="quickSearch" aria-hidden="true" data-prevent-quick-search-close>
+    <div id="quickSearch" aria-hidden="true" data-prevent-quick-search-close>
         {{> components/common/quick-search name='nav-quick-search'}}
     </div>
 </nav>

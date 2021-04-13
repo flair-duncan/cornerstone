@@ -1,4 +1,4 @@
-<div class="productView">
+<div>
     {{#each product.reviews.messages}}
         {{#if error}}
             {{>components/amp/common/alert-error error}}
@@ -9,7 +9,7 @@
     {{/each}}
 
     {{> components/amp/products/product-view-details}}
-    <section class="productView-images" data-image-gallery>
+    <section data-image-gallery>
         <amp-carousel width="250"
             height="250"
             layout="responsive"
@@ -26,14 +26,14 @@
             {{/each}}
         </amp-carousel>
     </section>
-    <div class="productView-action">
+    <div>
         {{#or customer (if theme_settings.restrict_to_login '!==' true)}}
             <amp-iframe height="400" width="250"
                 layout="responsive"
                 sandbox="allow-forms allow-pointer-lock allow-popups allow-same-origin allow-scripts allow-top-navigation allow-modals"
                 resizable
                 src="{{product.amp_options_url}}">
-                <div class="button button--primary button--wide" overflow tabindex="0" role="button">Choose Options</div>
+                <div overflow tabindex="0" role="button">Choose Options</div>
             </amp-iframe>
         {{/or}}
         {{#if product.out_of_stock}}
@@ -45,11 +45,11 @@
         {{/if}}
     </div>
 
-    <amp-accordion class="productAccordion-wrapper">
+    <amp-accordion>
         {{#if product.description}}
-            <section expanded class="productAccordion">
-                <h4 class="productAccordion-title">Description</h4>
-                <div class="productAccordion-content">
+            <section expanded>
+                <h4>Description</h4>
+                <div>
                     {{{product.description}}}
                 </div>
             </section>
@@ -61,9 +61,9 @@
             {{> components/amp/products/reviews reviews=product.reviews product=product urls=urls}}
         {{/if}}
         {{#if settings.add_this.buttons}}
-            <section expanded class="productAccordion">
-                <h4 class="productAccordion-title">Share</h4>
-                <div class="productAccordion-content social-share">
+            <section expanded>
+                <h4>Share</h4>
+                <div>
                     {{> components/amp/common/share }}
                 </div>
             </section>

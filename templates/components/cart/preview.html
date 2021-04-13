@@ -1,36 +1,36 @@
-<div class="modal-header">
-    <h1 class="modal-header-title">
+<div>
+    <h1>
         {{lang 'cart.added_to_cart.what_next' num_products=cart.quantity}}
     </h1>
 </div>
 
-<div class="modal-body">
-    <div class="previewCart">
-        <section class="previewCartCheckout">
+<div>
+    <div>
+        <section>
             {{#if cart.show_primary_checkout_button}}
-                <a href="{{urls.checkout.single_address}}" class="button button--primary">
+                <a href="{{urls.checkout.single_address}}">
                     {{lang 'cart.added_to_cart.proceed_to_checkout'}}
                 </a>
             {{/if}}
 
-            <div class="previewCartCheckout-additionalCheckoutButtons">
+            <div>
                 {{#each cart.additional_checkout_buttons}}
                     {{{this}}}
                 {{/each}}
             </div>
 
             {{#if cart.show_multiple_address_shipping}}
-                <div class="previewCartAction-checkoutMultiple">
+                <div>
                     <a href="{{urls.checkout.multiple_address}}">
                         {{lang 'cart.preview.checkout_multiple'}}
                     </a>
                 </div>
             {{/if}}
 
-            <div class="previewCartCheckout-subtotal">
+            <div>
                 {{lang 'cart.added_to_cart.order_subtotal'}}
 
-                <strong class="previewCartCheckout-price">
+                <strong>
                     {{#or customer (if theme_settings.restrict_to_login '!==' true)}}
                         {{cart.sub_total.formatted}}
                     {{else}}
@@ -43,21 +43,21 @@
                 {{lang 'cart.added_to_cart.your_cart_contains' num_products=cart.quantity}}
             </p>
 
-            <a href="#" class="button button--primary" role="button" data-reveal-close>
+            <a href="#" role="button" data-reveal-close>
                 {{lang 'cart.added_to_cart.continue_shopping'}}
             </a>
 
-            <a href="{{urls.cart}}" class="button">
+            <a href="{{urls.cart}}">
                 {{lang 'cart.added_to_cart.view_or_edit_cart'}}
             </a>
         </section>
-        <section class="productView">
+        <section>
             {{#with cart.added_item}}
-                <figure class="productView-image">
-                    <div class="productView-img-container">
+                <figure>
+                    <div>
                         {{> components/common/responsive-img
                             image=image
-                            class="productView-image--cart"
+                           
                             fallback_size=../theme_settings.product_size
                             lazyload=../theme_settings.lazyload_mode
                             default_image=../theme_settings.default_image_product
@@ -65,16 +65,16 @@
                     </div>
                 </figure>
 
-                <div class="productView-details">
-                    <h2 class="productView-title">
+                <div>
+                    <h2>
                         {{name}}
                     </h2>
 
-                    <div class="productView-brand">
+                    <div>
                         {{brand.name}}
                     </div>
 
-                    <div class="productView-price">
+                    <div>
                         {{#or ../customer (if ../theme_settings.restrict_to_login '!==' true)}}
                             {{quantity}} &times; {{price.formatted}}
                         {{else}}
@@ -83,11 +83,11 @@
                     </div>
 
                     {{#each options}}
-                        <dl class="productView-info">
-                            <dt class="productView-info-name">
+                        <dl>
+                            <dt>
                                 {{name}}
                             </dt>
-                            <dd class="productView-info-value">
+                            <dd>
                                 {{{ sanitize value}}}
                             </dd>
                         </dl>
@@ -98,14 +98,14 @@
     </div>
 
     {{#if cart.suggested_products}}
-        <section class="suggestiveCart">
+        <section>
             <h2>
                 {{lang 'cart.added_to_cart.you_might_also_like'}}&hellip;
             </h2>
 
-            <ul class="productGrid">
+            <ul>
                 {{#each cart.suggested_products}}
-                    <li class="product">
+                    <li>
                         {{> components/products/card settings=../settings hide_product_quick_view=true theme_settings=../theme_settings}}
                     </li>
                 {{/each}}

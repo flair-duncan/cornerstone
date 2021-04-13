@@ -1,7 +1,7 @@
 {{#partial "page"}}
-<div class="account">
+<div>
     {{> components/common/breadcrumbs breadcrumbs=breadcrumbs}}
-    <h2 class="page-heading">{{lang 'account.recent_items.heading' }}</h2>
+    <h2>{{lang 'account.recent_items.heading' }}</h2>
     {{> components/account/navigation account_page='recent_items'}}
 
     {{#unless customer.recently_viewed_products.items}}

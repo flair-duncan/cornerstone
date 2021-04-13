@@ -7,13 +7,9 @@ import quickSearch from './global/quick-search';
 import currencySelector from './global/currency-selector';
 import mobileMenuToggle from './global/mobile-menu-toggle';
 import menu from './global/menu';
-import foundation from './global/foundation';
 import quickView from './global/quick-view';
 import cartPreview from './global/cart-preview';
-import privacyCookieNotification from './global/cookieNotification';
 import adminBar from './global/adminBar';
-import carousel from './common/carousel';
-import loadingProgressBar from './global/loading-progress-bar';
 import svgInjector from './global/svg-injector';
 
 export default class Global extends PageManager {
@@ -24,16 +20,12 @@ export default class Global extends PageManager {
         cartPreview(secureBaseUrl, cartId);
         quickSearch();
         currencySelector(cartId);
-        foundation($(document));
         quickView(this.context);
-        carousel(this.context);
         menu();
         mobileMenuToggle();
-        privacyCookieNotification();
         if (showAdminBar) {
             adminBar(secureBaseUrl, channelId, maintenanceModeSettings, JSON.parse(adminBarLanguage), productId, categoryId);
         }
-        loadingProgressBar();
         svgInjector();
     }
 }

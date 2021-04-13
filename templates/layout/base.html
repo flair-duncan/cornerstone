@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html class="no-js" lang="{{ locale_name }}">
+<html lang="{{ locale_name }}">
     <head>
         <title>{{ head.title }}</title>
         {{{ resourceHints }}}
@@ -61,7 +61,7 @@
         {{~inject 'carouselContentAnnounceMessage' (lang 'carousel.content_announce_message')}}
     </head>
     <body>
-        <svg data-src="{{cdn 'img/icon-sprite.svg'}}" class="icons-svg-sprite"></svg>
+        <svg data-src="{{cdn 'img/icon-sprite.svg'}}"></svg>
 
         {{> components/common/header }}
         {{> components/common/body }}

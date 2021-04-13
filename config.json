@@ -347,7 +347,10 @@
     "checkout-paymentbuttons-paypal-color": "black",
     "checkout-paymentbuttons-paypal-shape": "rect",
     "checkout-paymentbuttons-paypal-size": "large",
-    "checkout-paymentbuttons-paypal-label": "pay"
+    "checkout-paymentbuttons-paypal-label": "pay",
+    "test-color": "#ff3800",
+    "test-number": "16px",
+    "test-font": "Google_Montserrat_700"
   },
   "read_only_files": [
     "/assets/scss/components/citadel",

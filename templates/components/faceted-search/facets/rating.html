@@ -1,16 +1,16 @@
 {{#if items}}
-<div class="accordion-block">
+<div>
     {{> components/faceted-search/faceted-search-navigation}}
 
-    <div id="facetedSearch-content--{{dashcase facet}}" class="accordion-content facetedSearch-content--{{dashcase facet}}{{#unless start_collapsed}} is-open{{/unless}}">
-        <ul class="navList">
+    <div id="facetedSearch-content--{{dashcase facet}}">
+        <ul>
             {{#each items}}
-                <li class="navList-item">
+                <li>
                     <a href="{{url}}"
-                       class="navList-action{{#if selected}} is-selected{{/if}}"
+                      
                        rel="nofollow"
                        data-faceted-search-facet>
-                        <span class="rating--small">
+                        <span>
                             {{> components/products/ratings rating=title}}
                         </span>
                         {{lang 'search.faceted.rating.and-up'}}

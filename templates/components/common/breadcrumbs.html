@@ -1,9 +1,9 @@
 <nav aria-label="Breadcrumb">
-    <ol class="breadcrumbs" itemscope itemtype="http://schema.org/BreadcrumbList">
+    <ol itemscope itemtype="http://schema.org/BreadcrumbList">
         {{#unless theme_settings.hide_breadcrumbs }}
             {{#each breadcrumbs}}
-                <li class="breadcrumb {{#if @last}}is-active{{/if}}" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
-                    <a class="breadcrumb-label"
+                <li itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+                    <a
                        itemprop="item"
                        href="{{url}}"
                        {{#if @last}}aria-current="page"{{/if}}

@@ -6,19 +6,19 @@ brands:
 
 {{> components/common/breadcrumbs breadcrumbs=breadcrumbs}}
 
-<main class="page">
-    <h1 class="page-heading">{{lang 'brand.label'}}</h1>
+<main>
+    <h1>{{lang 'brand.label'}}</h1>
     {{{region name="brands_below_header"}}}
-    <ul class="brandGrid">
+    <ul>
         {{#each brands}}
-            <li class="brand">
-                <article class="card {{#if alternate}}card--alternate{{/if}}">
-                    <figure class="card-figure">
-                        <a class="card-figure__link" aria-label="{{name}}" href="{{url}}">
-                            <div class="card-img-container">
+            <li>
+                <article>
+                    <figure>
+                        <a aria-label="{{name}}" href="{{url}}">
+                            <div>
                                 {{> components/common/responsive-img
                                     image=image
-                                    class="card-image"
+                                   
                                     fallback_size=../theme_settings.brand_size
                                     lazyload=../theme_settings.lazyload_mode
                                     default_image=../theme_settings.default_image_brand
@@ -26,8 +26,8 @@ brands:
                             </div>
                         </a>
                     </figure>
-                    <div class="card-body">
-                        <h3 class="card-title">
+                    <div>
+                        <h3>
                             <a href="{{url}}">{{name}}</a>
                         </h3>
                     </div>

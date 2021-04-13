@@ -8,18 +8,18 @@
 {{else}}
     <form>
         {{#if quotes.shipping_methods}}
-            <div class="estimator-form--default">
+            <div>
                 <ul>
                 {{#each quotes.shipping_methods}}
-                    <li class="estimator-form-row">
+                    <li>
                         <dl>
-                            <dt class="estimator-form-label">
-                                <input id="shipping-quote-{{type}}-{{id}}" class="shipping-quote" type="radio" name="shipping_method" value="{{id}}">
-                                <label class="estimator-form-label-text" for="shipping-quote-{{type}}-{{id}}">
+                            <dt>
+                                <input id="shipping-quote-{{type}}-{{id}}" type="radio" name="shipping_method" value="{{id}}">
+                                <label for="shipping-quote-{{type}}-{{id}}">
                                     {{provider_name}}
                                 </label>
                             </dt>
-                            <dd class="estimator-form-input estimator-form-input--price">
+                            <dd>
                                 <label for="shipping-quote-{{type}}-{{id}}">
                                     <b>{{cost.formatted}}</b>
                                 </label>
@@ -29,7 +29,7 @@
                 {{/each}}
                 </ul>
                 {{#if quotes.ups_shipping_methods}}
-                    <a class="estimator-form-toggleUPSRate" href="#">{{lang 'cart.shipping_estimator.show_ups_rates'}}</a>
+                    <a href="#">{{lang 'cart.shipping_estimator.show_ups_rates'}}</a>
                 {{/if}}
             </div>
         {{/if}}
@@ -37,18 +37,18 @@
             <div {{#if quotes.shipping_methods}}class="estimator-form--ups u-hiddenVisually"{{/if}}>
                 <ul>
                 {{#each quotes.ups_shipping_methods}}
-                    <li class="estimator-form-row">
+                    <li>
                         <dl>
-                            <dt class="estimator-form-label">
-                                <input id="shipping-quote-{{type}}-{{id}}" class="shipping-quote" type="radio" name="shipping_method" value="{{id}}">
-                                <label class="estimator-form-label-text" for="shipping-quote-{{type}}-{{id}}">
+                            <dt>
+                                <input id="shipping-quote-{{type}}-{{id}}" type="radio" name="shipping_method" value="{{id}}">
+                                <label for="shipping-quote-{{type}}-{{id}}">
                                     {{#if logo_path}}
-                                        <img class="lazyload" data-sizes="auto" src="{{cdn 'img/loading.svg'}}" data-src="{{logo_path}}" alt="{{description}}" title="{{description}}">
+                                        <img data-sizes="auto" src="{{cdn 'img/loading.svg'}}" data-src="{{logo_path}}" alt="{{description}}" title="{{description}}">
                                     {{/if}}
                                     {{provider_name}} &mdash; {{description}}
                                 </label>
                             </dt>
-                            <dd class="estimator-form-input estimator-form-input--price">
+                            <dd>
                                 <label for="shipping-quote-{{type}}-{{id}}">
                                     <b>{{cost.formatted}}</b>
                                 </label>
@@ -58,10 +58,10 @@
                 {{/each}}
                 </ul>
                 {{#if quotes.shipping_methods}}
-                    <a class="estimator-form-toggleUPSRate" href="#">{{lang 'cart.shipping_estimator.hide_ups_rates'}}</a>
+                    <a href="#">{{lang 'cart.shipping_estimator.hide_ups_rates'}}</a>
                 {{/if}}
             </div>
         {{/if}}
-        <input class="button button--small button--primary select-shipping-quote" type="submit" value="{{lang 'cart.checkout.update'}}">
+        <input type="submit" value="{{lang 'cart.checkout.update'}}">
     </form>
 {{/if}}

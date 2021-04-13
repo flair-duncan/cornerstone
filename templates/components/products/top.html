@@ -1,8 +1,8 @@
-<h2 class="page-heading">{{lang 'products.top' }}</h2>
+<h2>{{lang 'products.top' }}</h2>
 
-<ul class="productGrid productGrid--maxCol{{ columns }}" data-product-type="top_sellers"  {{#if settings.data_tag_enabled}} data-list-name="Most Popular Products" {{/if}}>
+<ul data-product-type="top_sellers"  {{#if settings.data_tag_enabled}} data-list-name="Most Popular Products" {{/if}}>
 {{#each products}}
-<li class="product">
+<li>
     {{>components/products/card settings=../settings theme_settings=../theme_settings customer=../customer event="list" position=(add @index 1)}}
 </li>
 {{/each}}
