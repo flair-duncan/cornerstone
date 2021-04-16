@@ -30,7 +30,7 @@
             {{#or customer (if theme_settings.restrict_to_login '!==' true)}}
                 {{> components/products/price price=price customer=customer}}
             {{else}}
-                {{> components/common/login-for-pricing}}
+                {{> components/common/sign-in-for-pricing}}
             {{/or}}
         </div>
     </div>

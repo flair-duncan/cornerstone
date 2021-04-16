@@ -1,6 +1,6 @@
-<nav aria-label="Breadcrumb">
-    <ol itemscope itemtype="http://schema.org/BreadcrumbList">
-        {{#unless theme_settings.hide_breadcrumbs }}
+{{#unless theme_settings.hide_breadcrumbs }}
+    <nav aria-label="Breadcrumb">
+        <ol itemscope itemtype="http://schema.org/BreadcrumbList">
             {{#each breadcrumbs}}
                 <li itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
                     <a
@@ -13,6 +13,6 @@
                     <meta itemprop="position" content="{{add @index 1}}" />
                 </li>
             {{/each}}
-        {{/unless}}
-    </ol>
-</nav>
+        </ol>
+    </nav>
+{{/unless}}

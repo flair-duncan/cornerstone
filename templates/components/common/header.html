@@ -1,4 +1,5 @@
-<a href="#main-content">{{lang 'header.skip_to_main'}}</a>
+{{{region name="header_top--global"}}}
+{{{region name="header_top"}}}
 {{#if banners.top}}
 <div data-banner-location="top">
     {{#each (limit banners.top_metadata 1)}}
@@ -10,15 +11,17 @@
     {{/each}}
 </div>
 {{/if}}
-<header role="banner">
+<header>
+    <a href="#main-content" class="screen-reader-only visible-when-focused">{{lang 'header.skip_to_main'}}</a>
     <a href="#" data-mobile-menu-toggle="menu">
-        <span>Toggle menu</span>
+        <span>{{lang 'header.toggle_menu'}}</span>
     </a>
-
 
     {{> components/common/store-logo}}
 
-    <div id="menu" data-menu>
+    {{> components/common/quick-search name='header-quick-search'}}
+
+    <div class="navigation" id="menu" data-menu>
         {{> components/common/navigation-menu}}
     </div>
 </header>

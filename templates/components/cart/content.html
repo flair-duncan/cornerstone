@@ -91,7 +91,7 @@
                             <span>{{price_discounted.formatted}}</span>
                         {{/if}}
                     {{else}}
-                        {{> components/common/login-for-pricing}}
+                        {{> components/common/sign-in-for-pricing}}
                     {{/or}}
                 </td>
 
@@ -146,7 +146,7 @@
                             <strong>{{total_discounted.formatted}}</strong>
                         {{/if}}
                     {{else}}
-                        {{> components/common/login-for-pricing}}
+                        {{> components/common/sign-in-for-pricing}}
                     {{/or}}
                     {{#or can_modify (if type '==' 'GiftCertificate')}}
                         <button

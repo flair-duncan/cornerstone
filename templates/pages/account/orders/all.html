@@ -22,7 +22,7 @@ customer:
         <section>
             {{#if customer.orders.length}}
                 {{> components/account/orders-list orders=customer.orders}}
-                {{> components/common/small-paginator pagination.orders}}
+                {{> components/common/paginator-small pagination.orders}}
             {{else}}
                 {{> components/common/alert/alert-info (lang 'account.orders.none')}}
             {{/if}}

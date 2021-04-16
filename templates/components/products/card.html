@@ -111,7 +111,7 @@
             {{#or customer (if theme_settings.restrict_to_login '!==' true)}}
                 {{> components/products/price price=price}}
             {{else}}
-                {{> components/common/login-for-pricing}}
+                {{> components/common/sign-in-for-pricing}}
             {{/or}}
         </div>
         {{> components/products/bulk-discount-rates}}

@@ -7,7 +7,7 @@
             {{#or customer (if theme_settings.restrict_to_login '!==' true)}}
                 <span>{{cart.sub_total.formatted}}</span>
             {{else}}
-                {{> components/common/login-for-pricing}}
+                {{> components/common/sign-in-for-pricing}}
             {{/or}}
         </div>
     </li>
@@ -102,7 +102,7 @@
             {{#or customer (if theme_settings.restrict_to_login '!==' true)}}
                 <span>{{cart.grand_total.formatted}}</span>
             {{else}}
-                {{> components/common/login-for-pricing}}
+                {{> components/common/sign-in-for-pricing}}
             {{/or}}
         </div>
     </li>

@@ -88,7 +88,7 @@
                 {{#or customer (if theme_settings.restrict_to_login '!==' true)}}
                     {{> components/products/price price=product.price schema_org=schema}}
                 {{else}}
-                    {{> components/common/login-for-pricing}}
+                    {{> components/common/sign-in-for-pricing}}
                 {{/or}}
             </div>
             {{{region name="product_below_price"}}}

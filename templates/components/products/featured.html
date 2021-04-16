@@ -1,6 +1,6 @@
 <h2>{{lang 'products.featured' }}</h2>
 
-<ul data-product-type="featured" {{#if settings.data_tag_enabled}} data-list-name="Featured Products" {{/if}}>
+<ul class="products flex-grid" data-product-type="featured" {{#if settings.data_tag_enabled}} data-list-name="Featured Products" {{/if}}>
     {{#each products}}
         <li>
                 {{>components/products/card settings=../settings theme_settings=../theme_settings customer=../customer event="list" position=(add @index 1)}}

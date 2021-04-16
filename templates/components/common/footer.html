@@ -18,9 +18,58 @@
     {{/if}}
 
 {{/if}}
-<footer role="contentinfo">
-    <h2>{{lang 'footer.title'}}</h2>
-    <div>
+<footer>
+    <h2 class="screen-reader-only">{{lang 'footer.title'}}</h2>
+    <section class="footer-content">
+        <article data-section-type="footer-webPages">
+            <h3>{{lang 'footer.navigate'}}</h3>
+            <ul>
+                {{#each pages}}
+                    <li>
+                        <a href="{{url}}">{{name}}</a>
+                    </li>
+                {{/each}}
+                <li>
+                    <a href="{{urls.sitemap}}">{{lang 'sitemap.page_title'}}</a>
+                </li>
+            </ul>
+        </article>
+
+        <article data-section-type="footer-categories">
+            <h3>{{lang 'footer.categories'}}</h3>
+            <ul>
+                {{#each categories}}
+                    <li>
+                        <a href="{{url}}">{{name}}</a>
+                    </li>
+                {{/each}}
+            </ul>
+        </article>
+
+        {{#and theme_settings.shop_by_brand_show_footer shop_by_brand.length}}
+        <article data-section-type="footer-brands">
+            <h3>{{lang 'footer.brands'}}</h3>
+            <ul>
+                {{#each shop_by_brand}}
+                    <li>
+                        <a href="{{url}}">{{name}}</a>
+                    </li>
+                {{/each}}
+                <li><a href="{{urls.brands}}">{{lang 'common.view_all'}}</a></li>
+            </ul>
+        </article>
+        {{/and}}
+
+        {{#if settings.address}}
+        <article data-section-type="storeInfo">
+            <h3>{{lang 'footer.info'}}</h3>
+            <address>{{nl2br settings.address}}</address>
+            {{#if settings.phone_number}}
+                <strong>{{lang 'footer.call_us' phone_number=settings.phone_number}}</strong>
+            {{/if}}
+        </article>
+        {{/if}}
+
         {{#if theme_settings.social_icon_placement_bottom '!==' 'bottom_none'}}
             <article
                 data-section-type="footer-webPages">
@@ -28,82 +77,32 @@
                     {{> components/common/social-links}}
             </article>
         {{/if}}
-        <section>
-            <article data-section-type="footer-webPages">
-                <h3>{{lang 'footer.navigate'}}</h3>
-                <ul>
-                    {{#each pages}}
-                        <li>
-                            <a href="{{url}}">{{name}}</a>
-                        </li>
-                    {{/each}}
-                    <li>
-                        <a href="{{urls.sitemap}}">{{lang 'sitemap.page_title'}}</a>
-                    </li>
-                </ul>
-            </article>
 
-            <article data-section-type="footer-categories">
-                <h3>{{lang 'footer.categories'}}</h3>
-                <ul>
-                    {{#each categories}}
-                        <li>
-                            <a href="{{url}}">{{name}}</a>
-                        </li>
-                    {{/each}}
-                </ul>
-            </article>
-
-            {{#and theme_settings.shop_by_brand_show_footer shop_by_brand.length}}
-            <article data-section-type="footer-brands">
-                <h3>{{lang 'footer.brands'}}</h3>
-                <ul>
-                    {{#each shop_by_brand}}
-                        <li>
-                            <a href="{{url}}">{{name}}</a>
-                        </li>
-                    {{/each}}
-                    <li><a href="{{urls.brands}}">{{lang 'common.view_all'}}</a></li>
-                </ul>
-            </article>
-            {{/and}}
-
-            {{#if settings.address}}
-            <article data-section-type="storeInfo">
-                <h3>{{lang 'footer.info'}}</h3>
-                <address>{{nl2br settings.address}}</address>
-                {{#if settings.phone_number}}
-                    <strong>{{lang 'footer.call_us' phone_number=settings.phone_number}}</strong>
-                {{/if}}
-            </article>
+        <article data-section-type="newsletterSubscription">
+            {{#if settings.show_newsletter_box}}
+                {{> components/common/subscription-form}}
             {{/if}}
-
-            <article data-section-type="newsletterSubscription">
-                {{#if settings.show_newsletter_box}}
-                    {{> components/common/subscription-form}}
-                {{/if}}
-                {{> components/common/payment-icons}}
-            </article>
-        </section>
-        {{#if theme_settings.geotrust_ssl_common_name}}
-            <div>
-                {{> components/common/geotrust-ssl-seal}}
-            </div>
-        {{/if}}
-        {{#if settings.paypal_commerce_credit_message}}
+            {{> components/common/payment-icons}}
+        </article>
+    </section>
+    {{#if theme_settings.geotrust_ssl_common_name}}
         <div>
-            <p>{{nl2br settings.paypal_commerce_credit_message}}</p>
+            {{> components/common/geotrust-ssl-seal}}
         </div>
-        {{/if}}
-        {{#if theme_settings.show_powered_by}}
-            <div>
-                <p>{{lang 'footer.powered_by'}} <a href="https://www.bigcommerce.com?utm_source=merchant&amp;utm_medium=poweredbyBC" rel="nofollow">BigCommerce</a></p>
-            </div>
-        {{/if}}
-        {{#if theme_settings.show_copyright_footer}}
-            <div>
-                <p>&copy; {{moment format="YYYY"}} {{settings.store_name}} </p>
-            </div>
-        {{/if}}
+    {{/if}}
+    {{#if settings.paypal_commerce_credit_message}}
+    <div>
+        <p>{{nl2br settings.paypal_commerce_credit_message}}</p>
     </div>
+    {{/if}}
+    {{#if theme_settings.show_powered_by}}
+        <div>
+            <p>{{lang 'footer.powered_by'}} <a href="https://www.bigcommerce.com?utm_source=merchant&amp;utm_medium=poweredbyBC" rel="nofollow">BigCommerce</a></p>
+        </div>
+    {{/if}}
+    {{#if theme_settings.show_copyright_footer}}
+        <div>
+            <p>&copy; {{moment format="YYYY"}} {{settings.store_name}} </p>
+        </div>
+    {{/if}}
 </footer>

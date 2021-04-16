@@ -1,3 +1,5 @@
+@import "helpers/toolkit";
+
 // Stencil Helper Tests
 $test-color: stencilColor("test-color");
 $test-font-weight: stencilFontWeight("test-font");
@@ -20,6 +22,10 @@ $font-size-xxl: 22px;
 
 
 // Resets
+
+* {
+  box-sizing: border-box;
+}
 
 body,
 blockquote,
@@ -46,6 +52,23 @@ ul {
   padding: 0;
 }
 
+fieldset,
+image,
+::before,
+::after {
+  border-width: 0;
+  border-style: solid;
+  border-color: grey;
+}
+
+img {
+    max-width: 100%;
+}
+
+* {
+    outline: 1px solid red;
+}
+
 
 // Utility classes
 
@@ -53,12 +76,73 @@ ul {
     display: none;
 }
 
-.hide {
+.hidden {
     display: none;
 }
 
-.show {
+.visible {
     display: block;
+}
+
+.screen-reader-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+.visible-when-focused:focus {
+    position: static;
+    width: auto;
+    height: auto;
+    padding: 0;
+    margin: 0;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+}
+
+.group:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+
+// Flexbox grid
+
+.flex-grid {
+    display: flex;
+    flex-wrap: wrap;
+
+    > * {
+        flex: 0 0 100%;
+
+        @include breakpoint("xsmall") {
+            flex: 0 0 calc(100% / 2);
+        }
+
+        @include breakpoint("small") {
+            flex: 0 0 calc(100% / 3);
+        }
+
+        @include breakpoint("medium") {
+            flex: 0 0 calc(100% / 4);
+        }
+
+        @include breakpoint("large") {
+            flex: 0 0 calc(100% / 5);
+        }
+
+        @include breakpoint("xxlarge") {
+            flex: 0 0 calc(100% / 6);
+        }
+    }
 }
 
 
@@ -74,12 +158,49 @@ body {
 
 header {
     display: flex;
-}
+    flex-flow: row wrap;
 
+    .navigation {
+        flex: 1 100%;
+
+        > * {
+            display: flex;
+
+            > * {
+                display: flex;
+            }
+        }
+    }
+}
 
 
 // Footer
 
 footer {
     display: flex;
+    flex-flow: row wrap;
 }
+
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    width: 100vw;
+}
+
+
+// Icons
+
+.icon {
+    display: inline-block;
+    vertical-align: middle;
+
+    svg {
+        max-height: 1rem;
+        max-width: 1rem;
+    }
+}
+
+
+// Product Listing
+
+.products {}

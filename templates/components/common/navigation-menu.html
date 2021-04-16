@@ -1,7 +1,4 @@
 <nav>
-    <div>
-        {{> components/common/quick-search name='nav-menu-quick-search'}}
-    </div>
     <ul>
         {{#each categories}}
             <li>
@@ -39,7 +36,7 @@
                     {{lang 'common.currency' code=currency_selector.active_currency_code}}
                     {{> components/common/icon icon="chevron-down"}}
                 </a>
-                <div id="navPages-currency" aria-hidden="true" tabindex="-1">
+                <div class="hidden" id="navPages-currency" aria-hidden="true" tabindex="-1">
                     <ul>
                         {{#each currency_selector.currencies}}
                         <li>
@@ -201,11 +198,6 @@
                         {{lang 'common.sign_up'}}
                     </a>
                 {{/if}}
-            </li>
-        {{/if}}
-        {{#if theme_settings.social_icon_placement_top}}
-            <li>
-                {{> components/common/social-links}}
             </li>
         {{/if}}
     </ul>
