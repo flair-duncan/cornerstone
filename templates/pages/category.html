@@ -23,7 +23,7 @@ category:
         image=category.image
         fallback_size=theme_settings.zoom_size
         lazyload=theme_settings.lazyload_mode
-       
+
     }}
 {{/if}}
 {{#unless theme_settings.hide_category_page_heading }}
@@ -31,7 +31,7 @@ category:
     {{{region name="category_below_header"}}}
 {{/unless}}
 {{{category.description}}}
-<div>
+<div class="container">
     {{#if category.faceted_search_enabled}}
         <aside id="faceted-search-container">
             {{> components/category/sidebar}}
@@ -48,10 +48,10 @@ category:
         {{/if}}
     {{/if}}
 
-    <main id="product-listing-container">
+    <div id="product-listing-container">
         {{> components/category/product-listing}}
         {{{region name="category_below_content"}}}
-    </main>
+    </div>
 </div>
 
 {{/partial}}

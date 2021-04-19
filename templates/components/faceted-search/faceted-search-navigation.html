@@ -1,6 +1,6 @@
 <div>
     <button type="button"
-        
+
          data-collapsible="#facetedSearch-content--{{dashcase facet}}"
          aria-label="{{lang 'search.faceted.toggleSection' title=title}}"
     >
@@ -9,12 +9,8 @@
         </span>
 
         <span>
-            <svg>
-                <use xlink:href="#icon-add" />
-            </svg>
-            <svg>
-                <use xlink:href="#icon-remove" />
-            </svg>
+            {{> components/common/icon icon="add"}}
+            {{> components/common/icon icon="remove"}}
         </span>
     </button>
     {{#if selected}}

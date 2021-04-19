@@ -4,7 +4,7 @@
 <h1>{{lang 'gift_certificate.heading' }}</h1>
 {{> components/gift-certificate/navigation gift_page='purchase'}}
 
-<main>
+<div>
 
     {{#each forms.gift_certificate.errors}}
         {{> components/common/alert/alert-error this}}
@@ -91,7 +91,7 @@
                 </label>
                 <div>
                     {{#each forms.gift_certificate.themes}}
-                        <input type="radio" name="certificate_theme" id="theme_{{this.value}}" value="{{this.value}}"{{#if this.value '==' ../forms.gift_certificate.values.theme}} checked{{/if}}>
+                        <input type="radio" name="certificate_theme" id="theme_{{this.value}}" value="{{this.value}}"{{#if this.value "==" ../forms.gift_certificate.values.theme}} checked{{/if}}>
                         <label for="theme_{{this.value}}">{{this.display}}</label>
                     {{/each}}
                 </div>
@@ -108,18 +108,18 @@
             {{inject 'agreeToTerms' (lang 'forms.validate.gift.agree_terms')}}
             <input
                 id="gift-certificate-preview"
-               
+
                 type="submit"
                 value="{{lang 'forms.gift_certificate.purchase.preview' }}"
                 data-preview-url="{{forms.gift_certificate.preview}}">
 
             <input
                 id="gift-certificate-submit"
-               
+
                 type="submit"
                 value="{{lang 'forms.gift_certificate.purchase.submit_value' }}">
         </div>
     </form>
-</main>
+</div>
 {{/partial}}
 {{> layout/base}}

@@ -1,0 +1,56 @@
+// Spacing Rhythm
+// -----------------------------------------------------------------------------
+//
+// Create consistent spacing patterns in your entire projects aesthetics.
+// Build your components margins, paddings, etc based off these spacing vars.
+//
+// -----------------------------------------------------------------------------
+
+// Base Spacing
+$spacingRhythm:                 1.5rem !default;
+
+$spacing-base:                  1rem !default;
+$spacing-single:                $spacingRhythm !default;
+$spacing-double:                $spacingRhythm * 2 !default;
+$spacing-half:                  $spacingRhythm / 2 !default;
+$spacing-third:                 $spacingRhythm / 3 !default;
+$spacing-quarter:               $spacingRhythm / 4 !default;
+$spacing-fifth:                 $spacingRhythm / 5 !default;
+$spacing-sixth:                 $spacingRhythm / 6 !default;
+$spacing-eighth:                $spacingRhythm / 8 !default;
+$spacing-tenth:                 $spacingRhythm / 10 !default;
+$spacing-twelth:                $spacingRhythm / 12 !default;
+$spacing-sixteenth:             $spacingRhythm / 16 !default;
+
+
+// Spacing Map
+// -----------------------------------------------------------------------------
+
+$spacingMap: (
+    base:                       $spacing-base,
+    single:                     $spacing-single,
+    double:                     $spacing-double,
+    half:                       $spacing-half,
+    third:                      $spacing-third,
+    quarter:                    $spacing-quarter,
+    fifth:                      $spacing-fifth,
+    sixth:                      $spacing-sixth,
+    eighth:                     $spacing-eighth,
+    tenth:                      $spacing-tenth,
+    twelth:                     $spacing-twelth,
+    sixteenth:                  $spacing-sixteenth
+);
+
+
+// Spacing Function
+// -----------------------------------------------------------------------------
+
+@function spacing($key) {
+
+    @if map-has-key($spacingMap, $key) {
+        @return map-get($spacingMap, $key);
+    }
+
+    @warn "Unknown `#{$key}` in $spacingMap.";
+    @return null;
+}

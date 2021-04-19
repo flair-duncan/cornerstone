@@ -1,27 +1,25 @@
-import 'foundation-sites/js/foundation/foundation';
-import 'foundation-sites/js/foundation/foundation.dropdown';
 import utils from '@bigcommerce/stencil-utils';
 import ProductDetails from '../common/product-details';
-import { defaultModal } from './modal';
 
 export default function (context) {
-    const modal = defaultModal();
+    const modal = $('.modal-content');
 
-    $('body').on('click', '.quickview', event => {
+    $('body').on('click', '[data-launch-quickview]', event => {
         event.preventDefault();
 
         const productId = $(event.currentTarget).data('productId');
 
-        modal.open({ size: 'large' });
-
         utils.api.product.getById(productId, { template: 'products/quick-view' }, (err, response) => {
-            modal.updateContent(response);
+            modal.html(response);
 
-            modal.$content.find('.productView').addClass('productView--quickView');
+            modal.find('.productView').addClass('productView--quickView');
 
-            modal.setupFocusTrap();
-
-            return new ProductDetails(modal.$content.find('.quickView'), context);
+            return new ProductDetails(modal.find('.quickView'), context);
         });
+    });
+
+    $('body').on('click', '[data-launch-quickview]', event => {
+        event.preventDefault();
+        modal.html('');
     });
 }

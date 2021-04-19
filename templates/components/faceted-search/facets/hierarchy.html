@@ -8,15 +8,13 @@
                 <li>
                     <a
                         href="{{url}}"
-                       
+
                         rel="nofollow"
                         data-id="{{id}}"
                         data-faceted-search-facet>
                         {{{sanitize title}}}
                         {{#if ../show_product_counts}}
-                            {{#if count}}
-                                <span>({{count}})</span>
-                            {{/if}}
+                            <span>({{count}})</span>
                         {{/if}}
                     </a>
                     {{#if children}}

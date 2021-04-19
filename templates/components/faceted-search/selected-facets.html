@@ -8,7 +8,7 @@
             {{#each items}}
                 <li>
                     <a href="{{url}}"
-                      
+
                        rel="nofollow"
                        data-faceted-search-facet
                     >
@@ -18,9 +18,7 @@
                             {{{sanitize title}}}
                         {{/if}}
 
-                        <svg>
-                            <use xlink:href="#icon-close" />
-                        </svg>
+                        {{> components/common/icon icon="close"}}
                     </a>
                 </li>
             {{/each}}

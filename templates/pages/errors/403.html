@@ -2,17 +2,15 @@
 
 {{> components/common/breadcrumbs breadcrumbs=breadcrumbs}}
 
-<main>
-    <section>
-        <h1>{{lang 'forbidden.page_heading'}}</h1>
-        <p>
-            {{lang 'forbidden.if_you_were_signed_in'}}
-            <a href="{{urls.auth.login}}">{{lang 'forbidden.sign_in'}}</a>
-            {{lang 'forbidden.to_continue'}}
-        </p>
-        {{> components/common/search-box}}
-    </section>
-</main>
+<section>
+    <h1>{{lang 'forbidden.page_heading'}}</h1>
+    <p>
+        {{lang 'forbidden.if_you_were_signed_in'}}
+        <a href="{{urls.auth.login}}">{{lang 'forbidden.sign_in'}}</a>
+        {{lang 'forbidden.to_continue'}}
+    </p>
+    {{> components/common/search-box}}
+</section>
 
 {{/partial}}
 {{> layout/base}}

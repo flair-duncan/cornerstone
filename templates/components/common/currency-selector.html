@@ -3,14 +3,15 @@
     <li>
         <a
            href="#"
-           data-dropdown="currencySelection"
+           data-toggle-target="#currencySelection"
+           data-toggle-class="visible"
            aria-controls="currencySelection"
            aria-expanded="false"
         >
             {{lang 'common.currency' code=currency_selector.active_currency_code}}
             {{> components/common/icon icon="chevron-down"}}
         </a>
-        <ul id="currencySelection" data-dropdown-content aria-hidden="true" tabindex="-1">
+        <ul class="hidden" id="currencySelection" data-dropdown-content aria-hidden="true" tabindex="-1">
             {{#each currency_selector.currencies}}
             <li>
                 <a href="{{{switch_url}}}"

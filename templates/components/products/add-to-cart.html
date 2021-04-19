@@ -5,12 +5,8 @@
                    for="qty[]">{{lang 'products.quantity'}}</label>
                 <div data-quantity-change>
                     <button data-action="dec">
-                        <span>{{lang 'products.quantity_decrease'}}</span>
-                        <i aria-hidden="true">
-                            <svg>
-                                <use xlink:href="#icon-keyboard-arrow-down"/>
-                            </svg>
-                        </i>
+                        <span class="screen-reader-only">{{lang 'products.quantity_decrease' name=product.title}}</span>
+                        {{> components/common/icon icon="keyboard-arrow-down"}}
                     </button>
                     <input
                            id="qty[]"
@@ -23,12 +19,8 @@
                            pattern="[0-9]*"
                            aria-live="polite">
                     <button data-action="inc">
-                        <span>{{lang 'products.quantity_increase'}}</span>
-                        <i aria-hidden="true">
-                            <svg>
-                                <use xlink:href="#icon-keyboard-arrow-up"/>
-                            </svg>
-                        </i>
+                        <span class="screen-reader-only">{{lang 'products.quantity_increase' name=product.title}}</span>
+                        {{> components/common/icon icon="keyboard-arrow-up"}}
                     </button>
                 </div>
         </div>
@@ -45,7 +37,7 @@
             <input
                     id="form-action-addToCart"
                     data-wait-message="{{lang 'products.adding_to_cart'}}"
-                   
+
                     type="submit"
                     value="{{#if product.pre_order}}{{lang 'products.pre_order'}}{{else}}{{lang 'products.add_to_cart'}}{{/if}}"
             >

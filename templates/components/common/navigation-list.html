@@ -1,7 +1,9 @@
 {{#if children}}
 <a
    href="{{url}}"
-   data-collapsible="navPages-{{id}}"
+   data-toggle-target="#navPages-{{id}}"
+   data-toggle-class="visible"
+   data-toggle-outside
 >
     {{name}}
     {{> components/common/icon icon="chevron-down"}}
@@ -22,18 +24,16 @@
                     <a
                        href="{{url}}"
                        aria-label="{{name}}"
+                       data-toggle-target="#navPages-{{id}}"
+                       data-toggle-class="visible"
+                       data-toggle-outside
                     >
                         {{name}}
-                        <span
-                            data-collapsible="navPages-{{id}}"
-                            data-collapsible-disabled-breakpoint="medium"
-                            data-collapsible-disabled-state="open"
-                            data-collapsible-enabled-state="closed"
-                        >
+                        <span>
                             {{> components/common/icon icon="chevron-down"}}
                         </span>
                     </a>
-                    <ul id="navPages-{{id}}">
+                    <ul id="navPages-{{id}}" class="hidden">
                         {{#each children}}
                         <li>
                             <a

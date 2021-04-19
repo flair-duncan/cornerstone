@@ -6,7 +6,7 @@ brands:
 
 {{> components/common/breadcrumbs breadcrumbs=breadcrumbs}}
 
-<main>
+<section>
     <h1>{{lang 'brand.label'}}</h1>
     {{{region name="brands_below_header"}}}
     <ul>
@@ -18,7 +18,7 @@ brands:
                             <div>
                                 {{> components/common/responsive-img
                                     image=image
-                                   
+
                                     fallback_size=../theme_settings.brand_size
                                     lazyload=../theme_settings.lazyload_mode
                                     default_image=../theme_settings.default_image_brand
@@ -37,6 +37,6 @@ brands:
     </ul>
     {{> components/common/paginator pagination.brands}}
     {{{region name="brands_below_content"}}}
-</main>
+</section>
 {{/partial}}
 {{> layout/base}}

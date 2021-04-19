@@ -1,10 +1,8 @@
 {{#partial "page"}}
     <section>
-        <main>
-            <h1>{{lang 'create_account.created.heading'}}</h1>
-            <p>{{{lang 'create_account.created.intro' store_name=settings.store_name email=customer.email}}}</p>
-            <a href="{{create_account.continue_url}}">{{lang 'create_account.created.continue'}}</a>
-        </main>
+        <h1>{{lang 'create_account.created.heading'}}</h1>
+        <p>{{{lang 'create_account.created.intro' store_name=settings.store_name email=customer.email}}}</p>
+        <a href="{{create_account.continue_url}}">{{lang 'create_account.created.continue'}}</a>
     </section>
 {{/partial}}
 {{> layout/base}}

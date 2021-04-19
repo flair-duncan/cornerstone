@@ -1,13 +1,9 @@
-<div>
-    <ul>
+<nav aria-label="pagination">
+    <ul class="pagination">
         {{#if previous}}
             <li>
                 <a href="{{previous}}" data-faceted-search-facet>
-                    <i aria-hidden="true">
-                        <svg>
-                            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-chevron-left"></use>
-                        </svg>
-                    </i>
+                    {{> components/common/icon icon="chevron-left"}}
                     {{lang 'common.previous'}}
                 </a>
             </li>
@@ -23,14 +19,9 @@
             <li>
                 <a href="{{next}}" data-faceted-search-facet>
                     {{lang 'common.next'}}
-                    <i aria-hidden="true">
-                        <svg>
-                            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-chevron-right"></use>
-                        </svg>
-                    </i>
+                    {{> components/common/icon icon="chevron-right"}}
                 </a>
             </li>
         {{/if}}
     </ul>
-</div>
-
+</nav>

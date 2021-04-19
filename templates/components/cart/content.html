@@ -13,7 +13,7 @@
                 <td>
                     {{#if type '==' 'GiftCertificate'}}
                         <img
-                           
+
                             src="{{cdn ../theme_settings.default_image_gift_certificate}}"
                             alt="{{lang 'cart.gift_certificates.gift_certificate'}}"
                             title="{{lang 'cart.gift_certificates.gift_certificate'}}"
@@ -21,7 +21,7 @@
                     {{else}}
                         {{> components/common/responsive-img
                             image=image
-                           
+
                             fallback_size=../theme_settings.productthumb_size
                             lazyload=../theme_settings.lazyload_mode
                             default_image=../theme_settings.default_image_product
@@ -105,8 +105,8 @@
                                     data-cart-itemid="{{id}}"
                                     data-action="dec"
                             >
-                                <span>{{lang 'products.quantity_decrease' name=name}}</span>
-                                <i aria-hidden="true"><svg><use xlink:href="#icon-keyboard-arrow-down" /></svg></i>
+                                <span class="screen-reader-only">{{lang 'products.quantity_decrease' name=name}}</span>
+                                {{> components/common/icon icon="keyboard-arrow-down"}}
                             </button>
                         {{/if}}
                         <input
@@ -130,8 +130,8 @@
                                     data-cart-itemid="{{id}}"
                                     data-action="inc"
                             >
-                                <span>{{lang 'products.quantity_increase' name=name}}</span>
-                                <i aria-hidden="true"><svg><use xlink:href="#icon-keyboard-arrow-up" /></svg></i>
+                                <span class="screen-reader-only">{{lang 'products.quantity_increase' name=name}}</span>
+                                {{> components/common/icon icon="keyboard-arrow-down"}}
                             </button>
                         {{/if}}
                     </div>
@@ -154,7 +154,8 @@
                                 data-confirm-delete="{{lang 'cart.confirm_delete'}}"
                                 aria-label="{{lang 'cart.remove_item' name=name}}"
                         >
-                            <svg><use xlink:href="#icon-close"></use></svg>
+                            <span class="screen-reader-only">{{lang 'cart.remove_item' name=name}}</span>
+                            {{> components/common/icon icon="close"}}
                         </button>
                     {{/or}}
                 </td>

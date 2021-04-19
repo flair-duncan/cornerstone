@@ -14,24 +14,20 @@
             <span>
                 {{lang 'search.faceted.hide-filters'}}
 
-                <i aria-hidden="true">
-                    <svg><use xlink:href="#icon-keyboard-arrow-up"/></svg>
-                </i>
+                {{> components/common/icon icon="keyboard-arrow-up"}}
             </span>
 
             <span>
                 {{lang 'search.faceted.show-filters'}}
 
-                <i aria-hidden="true">
-                    <svg><use xlink:href="#icon-keyboard-arrow-down"/></svg>
-                </i>
+                {{> components/common/icon icon="keyboard-arrow-down"}}
             </span>
         </span>
     </a>
 
     {{#any facets visible=true}}
         <div id="facetedSearch-navList"
-           
+
         >
             <div>
                 {{#each facets}}

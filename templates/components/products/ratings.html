@@ -7,17 +7,9 @@
 >
     {{#for 1 5}}
         {{#if ../this.rating '>=' $index}}
-            <span>
-                <svg>
-                    <use xlink:href="#icon-star" />
-                </svg>
-            </span>
+            {{> components/common/icon icon="star"}}
         {{else}}
-            <span>
-                <svg>
-                    <use xlink:href="#icon-star" />
-                </svg>
-            </span>
+            {{> components/common/icon icon="star" class="rating-none"}}
         {{/if}}
     {{/for}}
 </span>

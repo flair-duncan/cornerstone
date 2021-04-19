@@ -2,6 +2,6 @@
     <span>{{{heading}}}</span>
     <p>{{{text}}}</p>
     {{#if button_text}}
-        <a href="{{url}}" aria-label="{{#if this.alt_text.length '!=' 0}}{{this.alt_text}}{{else}}{{lang 'carousel.slide_number' slide_number=(add @index 1)}}{{/if}}, {{button_text}}">{{button_text}}</a>
+        <a href="{{url}}" class="button" aria-label="{{#if this.alt_text.length '!=' 0}}{{this.alt_text}}{{else}}{{lang 'carousel.slide_number' slide_number=(add @index 1)}}{{/if}}, {{button_text}}">{{button_text}}</a>
     {{/if}}
 </div>

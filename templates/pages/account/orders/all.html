@@ -10,25 +10,23 @@ customer:
 <h1>{{lang 'account.orders.heading' }}</h1>
 {{> components/account/navigation account_page='orders'}}
 
-<main>
-    <div>
-        {{#if customer.store_credit.value '>' 0}}
-            <div>
-                {{{lang 'common.store_credit' store_credit=customer.store_credit.formatted}}}
-            </div>
+<div>
+    {{#if customer.store_credit.value '>' 0}}
+        <div>
+            {{{lang 'common.store_credit' store_credit=customer.store_credit.formatted}}}
+        </div>
+    {{/if}}
+</div>
+<div>
+    <section>
+        {{#if customer.orders.length}}
+            {{> components/account/orders-list orders=customer.orders}}
+            {{> components/common/paginator-small pagination.orders}}
+        {{else}}
+            {{> components/common/alert/alert-info (lang 'account.orders.none')}}
         {{/if}}
-    </div>
-    <div>
-        <section>
-            {{#if customer.orders.length}}
-                {{> components/account/orders-list orders=customer.orders}}
-                {{> components/common/paginator-small pagination.orders}}
-            {{else}}
-                {{> components/common/alert/alert-info (lang 'account.orders.none')}}
-            {{/if}}
-        </section>
-    </div>
-</main>
+    </section>
+</div>
 
 {{/partial}}
 {{> layout/base}}

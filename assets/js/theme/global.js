@@ -5,9 +5,11 @@ import './common/select-option-plugin';
 import PageManager from './page-manager';
 import quickSearch from './global/quick-search';
 import currencySelector from './global/currency-selector';
-import mobileMenuToggle from './global/mobile-menu-toggle';
-import menu from './global/menu';
+import toggle from 'easy-toggle-state';
+// import mobileMenuToggle from './global/mobile-menu-toggle';
+// import menu from './global/menu';
 import quickView from './global/quick-view';
+import sticky from './global/sticky-listener';
 import cartPreview from './global/cart-preview';
 import adminBar from './global/adminBar';
 import svgInjector from './global/svg-injector';
@@ -20,12 +22,16 @@ export default class Global extends PageManager {
         cartPreview(secureBaseUrl, cartId);
         quickSearch();
         currencySelector(cartId);
+        toggle();
         quickView(this.context);
-        menu();
-        mobileMenuToggle();
+        sticky();
+        // menu();
+        // mobileMenuToggle();
         if (showAdminBar) {
             adminBar(secureBaseUrl, channelId, maintenanceModeSettings, JSON.parse(adminBarLanguage), productId, categoryId);
         }
         svgInjector();
     }
 }
+
+window.toggle = toggle;

@@ -14,9 +14,7 @@
                        {{{annotation}}}
                     >
                         <span>{{{capitalize service}}}</span>
-                        <svg>
-                            <use xlink:href="#icon-facebook"/>
-                        </svg>
+                        {{> components/common/icon icon="facebook"}}
                     </a>
                     {{else if service '===' 'email'}}
                     <a
@@ -27,9 +25,7 @@
                        {{{annotation}}}
                     >
                         <span>{{{capitalize service}}}</span>
-                        <svg>
-                            <use xlink:href="#icon-envelope"/>
-                        </svg>
+                        {{> components/common/icon icon="envelope"}}
                     </a>
                     {{else if service '===' 'print'}}
                     <a
@@ -38,9 +34,7 @@
                        {{{annotation}}}
                     >
                         <span>{{{capitalize service}}}</span>
-                        <svg>
-                            <use xlink:href="#icon-print"/>
-                        </svg>
+                        {{> components/common/icon icon="print"}}
                     </a>
                     {{else if service '===' 'twitter'}}
                     <a
@@ -51,9 +45,7 @@
                        {{{annotation}}}
                     >
                         <span>{{{capitalize service}}}</span>
-                        <svg>
-                            <use xlink:href="#icon-twitter"/>
-                        </svg>
+                        {{> components/common/icon icon="twitter"}}
                     </a>
                     {{else if service '===' 'linkedin'}}
                     <a
@@ -64,9 +56,7 @@
                        {{{annotation}}}
                     >
                         <span>{{{capitalize service}}}</span>
-                        <svg>
-                            <use xlink:href="#icon-linkedin"/>
-                        </svg>
+                        {{> components/common/icon icon="linkedin"}}
                     </a>
                     {{else if service '===' 'pinterest'}}
                     <a
@@ -77,9 +67,7 @@
                        {{{annotation}}}
                     >
                         <span>{{{capitalize service}}}</span>
-                        <svg>
-                            <use xlink:href="#icon-pinterest"/>
-                        </svg>
+                        {{> components/common/icon icon="pinterest"}}
                     </a>
                     {{/if}}
                 </li>
@@ -89,7 +77,7 @@
 {{/if}}
 {{#if settings.facebook_like_button.enabled}}
     <iframe
-       
+
         style="border:none; overflow:hidden; margin: 0; padding: 0; position:absolute"
         src="https://www.facebook.com/plugins/like.php?href={{settings.facebook_like_button.href}}&amp;layout=button_count{{#if settings.facebook_like_button.verb '===' 'recommend'}}&amp;action=recommend{{/if}}&amp;colorscheme=light&amp;height=20"
         scrolling="no"
