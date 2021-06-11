@@ -3,7 +3,7 @@ import _ from 'lodash';
 import Url from 'url';
 import urlUtils from './utils/url-utils';
 import modalFactory, { ModalEvents } from '../global/modal';
-import collapsibleFactory from './collapsible';
+// import collapsibleFactory from './collapsible';
 import { Validators } from './utils/form-utils';
 import nod from './nod';
 
@@ -67,7 +67,7 @@ class FacetedSearch {
         }
 
         // Init collapsibles
-        collapsibleFactory();
+        // collapsibleFactory();
 
         // Init price validator
         this.initPriceValidator();
@@ -115,7 +115,7 @@ class FacetedSearch {
         }
 
         // Init collapsibles
-        collapsibleFactory();
+        // collapsibleFactory();
 
         // Init price validator
         this.initPriceValidator();
