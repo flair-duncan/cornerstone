@@ -1,3 +1,5 @@
+import documentReady from './global/document-ready';
+
 export default class PageManager {
     constructor(context) {
         this.context = context;
@@ -7,13 +9,12 @@ export default class PageManager {
         return this.constructor.name;
     }
 
-    onReady() {
-    }
+    onReady() {}
 
     static load(context) {
         const page = new this(context);
 
-        $(document).ready(() => {
+        documentReady(() => {
             page.onReady.bind(page)();
         });
     }

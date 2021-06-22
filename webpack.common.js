@@ -61,11 +61,11 @@ module.exports = {
             watch: false,
         }),
         new LodashPlugin(), // Complements babel-plugin-lodash by shrinking its cherry-picked builds further.
-        new webpack.ProvidePlugin({ // Provide jquery automatically without explicit import
-            $: 'jquery',
-            jQuery: 'jquery',
-            'window.jQuery': 'jquery',
-        }),
+        // new webpack.ProvidePlugin({ // Provide jquery automatically without explicit import
+        //     $: 'jquery',
+        //     jQuery: 'jquery',
+        //     'window.jQuery': 'jquery',
+        // }),
         new BundleAnalyzerPlugin({
             analyzerMode: 'static',
             openAnalyzer: false,
@@ -73,7 +73,7 @@ module.exports = {
     ],
     resolve: {
         alias: {
-            jquery: path.resolve(__dirname, 'node_modules/jquery/dist/jquery.min.js'),
+            // jquery: path.resolve(__dirname, 'node_modules/jquery/dist/jquery.min.js'),
             jstree: path.resolve(__dirname, 'node_modules/jstree/dist/jstree.min.js'),
             lazysizes: path.resolve(__dirname, 'node_modules/lazysizes/lazysizes.min.js'),
             nanobar: path.resolve(__dirname, 'node_modules/nanobar/nanobar.min.js'),

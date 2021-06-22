@@ -9,7 +9,7 @@
  * serializeArray() will use the value of 2 instead of 3)
  */
 function toggleOption(show) {
-    const currentSelectElement = $(this).closest('select'); // the select containing this
+    const currentSelectElement = document.querySelector(this).closest('select'); // the select containing this
     let disabledSelectElement; // the disabled select element
     let selectElement; // the real select element
 
@@ -55,4 +55,4 @@ function toggleOption(show) {
     selectedOption.prop('selected', true);
 }
 
-$.fn.toggleOption = toggleOption;
+document.toggleOption = toggleOption;
