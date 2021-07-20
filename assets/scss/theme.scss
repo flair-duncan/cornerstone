@@ -21,6 +21,16 @@ $font-size-xl: 20px;
 $font-size-xxl: 22px;
 
 
+// Colors
+
+$theme-colors: (
+    "color-primary": stencilColor("color-primary"),
+    "color-secondary": stencilColor("color-secondary"),
+    "color-dark": stencilColor("color-dark"),
+    "color-light": stencilColor("color-light"),
+);
+
+
 // Resets
 
 * {
@@ -164,6 +174,7 @@ img {
 body {
     font-family: $system-font;
     font-size: $test-number;
+    color: map-get($theme-colors, #{stencilString("color-bodyText")});
 }
 
 
