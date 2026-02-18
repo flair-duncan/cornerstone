@@ -3,18 +3,27 @@ import ProductDetailsBase, { optionChangeDecorator } from './product-details-bas
 import { isEmpty } from 'lodash';
 import { isBrowserIE, convertIntoArray } from './utils/ie-helpers';
 
+/**
+ * Serialize form data as URL-encoded string (replaces jQuery .serialize())
+ */
+function serializeForm(form) {
+    return new URLSearchParams(new FormData(form)).toString();
+}
+
 export default class CartItemDetails extends ProductDetailsBase {
-    constructor($scope, context, productAttributesData = {}) {
-        super($scope, context);
+    constructor(scope, context, productAttributesData = {}) {
+        super(scope, context);
 
-        const $form = $('#CartEditProductFieldsForm', this.$scope);
-        const $productOptionsElement = $('[data-product-attributes-wrapper]', $form);
-        const hasOptions = $productOptionsElement.html().trim().length;
-        const hasDefaultOptions = $productOptionsElement.find('[data-default]').length;
+        const form = this.$scope.querySelector('#CartEditProductFieldsForm');
+        const productOptionsElement = form ? form.querySelector('[data-product-attributes-wrapper]') : null;
+        const hasOptions = productOptionsElement ? productOptionsElement.innerHTML.trim().length : 0;
+        const hasDefaultOptions = productOptionsElement ? productOptionsElement.querySelectorAll('[data-default]').length : 0;
 
-        $productOptionsElement.on('change', () => {
-            this.setProductVariant();
-        });
+        if (productOptionsElement) {
+            productOptionsElement.addEventListener('change', () => {
+                this.setProductVariant();
+            });
+        }
 
         const optionChangeCallback = optionChangeDecorator.call(this, hasDefaultOptions);
 
@@ -23,7 +32,7 @@ export default class CartItemDetails extends ProductDetailsBase {
         if ((isEmpty(productAttributesData) || hasDefaultOptions) && hasOptions) {
             const productId = this.context.productForChangeId;
 
-            utils.api.productAttributes.optionChange(productId, $form.serialize(), 'products/bulk-discount-rates', optionChangeCallback);
+            utils.api.productAttributes.optionChange(productId, form ? serializeForm(form) : '', 'products/bulk-discount-rates', optionChangeCallback);
         } else {
             this.updateProductAttributes(productAttributesData);
         }
@@ -33,7 +42,7 @@ export default class CartItemDetails extends ProductDetailsBase {
         const unsatisfiedRequiredFields = [];
         const options = [];
 
-        $.each($('[data-product-attribute]'), (index, value) => {
+        document.querySelectorAll('[data-product-attribute]').forEach(value => {
             const optionLabel = value.children[0].innerText;
             const optionTitle = optionLabel.split(':')[0].trim();
             const required = optionLabel.toLowerCase().includes('required');
@@ -117,16 +126,19 @@ export default class CartItemDetails extends ProductDetailsBase {
         });
 
         let productVariant = unsatisfiedRequiredFields.length === 0 ? options.sort().join(', ') : 'unsatisfied';
-        const view = $('.modal-header-title');
+        const view = document.querySelector('.modal-header-title');
 
-        if (productVariant) {
+        if (productVariant && view) {
             productVariant = productVariant === 'unsatisfied' ? '' : productVariant;
-            if (view.attr('data-event-type')) {
-                view.attr('data-product-variant', productVariant);
+            if (view.getAttribute('data-event-type')) {
+                view.setAttribute('data-product-variant', productVariant);
             } else {
-                const productName = view.html().match(/'(.*?)'/)[1];
-                const card = $(`[data-name="${productName}"]`);
-                card.attr('data-product-variant', productVariant);
+                const match = view.innerHTML.match(/'(.*?)'/);
+                if (match) {
+                    const productName = match[1];
+                    const card = document.querySelector(`[data-name="${productName}"]`);
+                    if (card) card.setAttribute('data-product-variant', productVariant);
+                }
             }
         }
     }
@@ -138,6 +150,7 @@ export default class CartItemDetails extends ProductDetailsBase {
     updateProductAttributes(data) {
         super.updateProductAttributes(data);
 
-        this.$scope.find('.modal-content').removeClass('hide-content');
+        const modalContent = this.$scope.querySelector('.modal-content');
+        if (modalContent) modalContent.classList.remove('hide-content');
     }
 }
