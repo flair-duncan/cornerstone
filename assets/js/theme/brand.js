@@ -13,7 +13,7 @@ export default class Brand extends CatalogPage {
     onReady() {
         compareProducts(this.context);
 
-        if ($('#facetedSearch').length > 0) {
+        if (document.getElementById('facetedSearch')) {
             this.initFacetedSearch();
         } else {
             this.onSortBySubmit = this.onSortBySubmit.bind(this);
@@ -29,8 +29,8 @@ export default class Brand extends CatalogPage {
             price_max_not_entered: maxPriceNotEntered,
             price_invalid_value: onInvalidPrice,
         } = this.validationDictionary;
-        const $productListingContainer = $('#product-listing-container');
-        const $facetedSearchContainer = $('#faceted-search-container');
+        const productListingContainer = document.getElementById('product-listing-container');
+        const facetedSearchContainer = document.getElementById('faceted-search-container');
         const productsPerPage = this.context.brandProductsPerPage;
         const requestOptions = {
             template: {
@@ -49,14 +49,12 @@ export default class Brand extends CatalogPage {
         };
 
         this.facetedSearch = new FacetedSearch(requestOptions, (content) => {
-            $productListingContainer.html(content.productListing);
-            $facetedSearchContainer.html(content.sidebar);
+            if (productListingContainer) productListingContainer.innerHTML = content.productListing;
+            if (facetedSearchContainer) facetedSearchContainer.innerHTML = content.sidebar;
 
-            $('body').triggerHandler('compareReset');
+            document.body.dispatchEvent(new Event('compareReset'));
 
-            $('html, body').animate({
-                scrollTop: 0,
-            }, 100);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }, {
             validationErrorMessages: {
                 onMinPriceError,

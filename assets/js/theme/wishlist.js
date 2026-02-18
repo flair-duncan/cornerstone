@@ -1,9 +1,8 @@
-import 'foundation-sites/js/foundation/foundation';
-import 'foundation-sites/js/foundation/foundation.reveal';
 import nod from './common/nod';
 import PageManager from './page-manager';
 import { wishlistPaginatorHelper } from './common/utils/pagination-utils';
 import { announceInputErrorMessage } from './common/utils/form-utils';
+import { delegate } from './common/dom';
 
 export default class WishList extends PageManager {
     constructor(context) {
@@ -18,7 +17,7 @@ export default class WishList extends PageManager {
      * Creates a confirm box before deleting all wish lists
      */
     wishlistDeleteConfirm() {
-        $('body').on('click', '[data-wishlist-delete]', event => {
+        delegate(document.body, 'click', '[data-wishlist-delete]', event => {
             const confirmed = window.confirm(this.context.wishlistDelete);
 
             if (confirmed) {
@@ -29,7 +28,7 @@ export default class WishList extends PageManager {
         });
     }
 
-    registerAddWishListValidation($addWishlistForm) {
+    registerAddWishListValidation(addWishlistForm) {
         this.addWishlistValidator = nod({
             submit: '.wishlist-form input[type="submit"]',
             tap: announceInputErrorMessage,
@@ -47,7 +46,7 @@ export default class WishList extends PageManager {
             },
         ]);
 
-        $addWishlistForm.on('submit', event => {
+        addWishlistForm.addEventListener('submit', event => {
             this.addWishlistValidator.performCheck();
 
             if (this.addWishlistValidator.areAll('valid')) {
@@ -59,14 +58,14 @@ export default class WishList extends PageManager {
     }
 
     onReady() {
-        const $addWishListForm = $('.wishlist-form');
+        const addWishListForm = document.querySelector('.wishlist-form');
 
-        if ($('[data-pagination-wishlist]').length) {
+        if (document.querySelector('[data-pagination-wishlist]')) {
             wishlistPaginatorHelper();
         }
 
-        if ($addWishListForm.length) {
-            this.registerAddWishListValidation($addWishListForm);
+        if (addWishListForm) {
+            this.registerAddWishListValidation(addWishListForm);
         }
 
         this.wishlistDeleteConfirm();

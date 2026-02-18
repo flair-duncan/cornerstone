@@ -14,7 +14,7 @@ export default class ContactUs extends PageManager {
             submit: `${formSelector} input[type="submit"]`,
             tap: announceInputErrorMessage,
         });
-        const $contactForm = $(formSelector);
+        const contactForm = document.querySelector(formSelector);
 
         contactUsValidator.add([
             {
@@ -37,14 +37,16 @@ export default class ContactUs extends PageManager {
             },
         ]);
 
-        $contactForm.on('submit', event => {
-            contactUsValidator.performCheck();
+        if (contactForm) {
+            contactForm.addEventListener('submit', event => {
+                contactUsValidator.performCheck();
 
-            if (contactUsValidator.areAll('valid')) {
-                return;
-            }
+                if (contactUsValidator.areAll('valid')) {
+                    return;
+                }
 
-            event.preventDefault();
-        });
+                event.preventDefault();
+            });
+        }
     }
 }

@@ -3,6 +3,7 @@ import CatalogPage from './catalog';
 import compareProducts from './global/compare-products';
 import FacetedSearch from './common/faceted-search';
 import { createTranslationDictionary } from './common/utils/translations-utils';
+import { qsa } from './common/dom';
 
 export default class Category extends CatalogPage {
     constructor(context) {
@@ -10,27 +11,35 @@ export default class Category extends CatalogPage {
         this.validationDictionary = createTranslationDictionary(context);
     }
 
-    setLiveRegionAttributes($element, roleType, ariaLiveStatus) {
-        $element.attr({
-            role: roleType,
-            'aria-live': ariaLiveStatus,
-        });
+    setLiveRegionAttributes(element, roleType, ariaLiveStatus) {
+        if (!element) return;
+        element.setAttribute('role', roleType);
+        element.setAttribute('aria-live', ariaLiveStatus);
     }
 
     makeShopByPriceFilterAccessible() {
-        if (!$('[data-shop-by-price]').length) return;
+        if (!document.querySelector('[data-shop-by-price]')) return;
 
-        if ($('.navList-action').hasClass('is-active')) {
-            $('a.navList-action.is-active').trigger('focus');
+        const activeLink = document.querySelector('.navList-action.is-active');
+        if (activeLink) {
+            activeLink.focus();
         }
 
-        $('a.navList-action').on('click', () => this.setLiveRegionAttributes($('span.price-filter-message'), 'status', 'assertive'));
+        qsa('a.navList-action').forEach(link => {
+            link.addEventListener('click', () => {
+                this.setLiveRegionAttributes(document.querySelector('span.price-filter-message'), 'status', 'assertive');
+            });
+        });
     }
 
     onReady() {
         this.arrangeFocusOnSortBy();
 
-        $('[data-button-type="add-cart"]').on('click', (e) => this.setLiveRegionAttributes($(e.currentTarget).next(), 'status', 'polite'));
+        qsa('[data-button-type="add-cart"]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                this.setLiveRegionAttributes(e.currentTarget.nextElementSibling, 'status', 'polite');
+            });
+        });
 
         this.makeShopByPriceFilterAccessible();
 
@@ -38,7 +47,7 @@ export default class Category extends CatalogPage {
 
         this.initFacetedSearch();
 
-        if (!$('#facetedSearch').length) {
+        if (!document.getElementById('facetedSearch')) {
             this.onSortBySubmit = this.onSortBySubmit.bind(this);
             hooks.on('sortBy-submitted', this.onSortBySubmit);
 
@@ -46,22 +55,28 @@ export default class Category extends CatalogPage {
             const urlParams = new URLSearchParams(window.location.search);
 
             if (urlParams.has('search_query')) {
-                $('.reset-filters').show();
+                qsa('.reset-filters').forEach(el => { el.style.display = ''; });
             }
 
-            $('input[name="price_min"]').attr('value', urlParams.get('price_min'));
-            $('input[name="price_max"]').attr('value', urlParams.get('price_max'));
+            const priceMin = document.querySelector('input[name="price_min"]');
+            const priceMax = document.querySelector('input[name="price_max"]');
+            if (priceMin) priceMin.setAttribute('value', urlParams.get('price_min') || '');
+            if (priceMax) priceMax.setAttribute('value', urlParams.get('price_max') || '');
         }
 
-        $('a.reset-btn').on('click', () => this.setLiveRegionsAttributes($('span.reset-message'), 'status', 'polite'));
+        qsa('a.reset-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                this.setLiveRegionAttributes(document.querySelector('span.reset-message'), 'status', 'polite');
+            });
+        });
 
         this.ariaNotifyNoProducts();
     }
 
     ariaNotifyNoProducts() {
-        const $noProductsMessage = $('[data-no-products-notification]');
-        if ($noProductsMessage.length) {
-            $noProductsMessage.trigger('focus');
+        const noProductsMessage = document.querySelector('[data-no-products-notification]');
+        if (noProductsMessage) {
+            noProductsMessage.focus();
         }
     }
 
@@ -73,8 +88,8 @@ export default class Category extends CatalogPage {
             price_max_not_entered: maxPriceNotEntered,
             price_invalid_value: onInvalidPrice,
         } = this.validationDictionary;
-        const $productListingContainer = $('#product-listing-container');
-        const $facetedSearchContainer = $('#faceted-search-container');
+        const productListingContainer = document.getElementById('product-listing-container');
+        const facetedSearchContainer = document.getElementById('faceted-search-container');
         const productsPerPage = this.context.categoryProductsPerPage;
         const requestOptions = {
             config: {
@@ -92,14 +107,12 @@ export default class Category extends CatalogPage {
         };
 
         this.facetedSearch = new FacetedSearch(requestOptions, (content) => {
-            $productListingContainer.html(content.productListing);
-            $facetedSearchContainer.html(content.sidebar);
+            if (productListingContainer) productListingContainer.innerHTML = content.productListing;
+            if (facetedSearchContainer) facetedSearchContainer.innerHTML = content.sidebar;
 
-            $('body').triggerHandler('compareReset');
+            document.body.dispatchEvent(new Event('compareReset'));
 
-            $('html, body').animate({
-                scrollTop: 0,
-            }, 100);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }, {
             validationErrorMessages: {
                 onMinPriceError,

@@ -14,17 +14,18 @@ export default class CatalogPage extends PageManager {
     }
 
     arrangeFocusOnSortBy() {
-        const $sortBySelector = $('[data-sort-by="product"] #sort');
+        const sortBySelector = document.querySelector('[data-sort-by="product"] #sort');
 
-        if (window.localStorage.getItem('sortByStatus')) {
-            $sortBySelector.trigger('focus');
+        if (window.localStorage.getItem('sortByStatus') && sortBySelector) {
+            sortBySelector.focus();
             window.localStorage.removeItem('sortByStatus');
         }
     }
 
     onSortBySubmit(event, currentTarget) {
         const url = Url.parse(window.location.href, true);
-        const queryParams = $(currentTarget).serialize().split('=');
+        const formData = new URLSearchParams(new FormData(currentTarget)).toString();
+        const queryParams = formData.split('=');
 
         url.query[queryParams[0]] = queryParams[1];
         delete url.query.page;
