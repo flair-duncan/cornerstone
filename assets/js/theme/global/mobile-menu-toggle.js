@@ -2,14 +2,15 @@ import * as focusTrap from 'focus-trap';
 import _ from 'lodash';
 import mediaQueryListFactory from '../common/media-query-list';
 import { CartPreviewEvents } from './cart-preview';
+import { qsa } from '../common/dom';
 
 const PLUGIN_KEY = {
     CAMEL: 'mobileMenuToggle',
     SNAKE: 'mobile-menu-toggle',
 };
 
-function optionsFromData($element) {
-    const mobileMenuId = $element.data(PLUGIN_KEY.CAMEL);
+function optionsFromData(element) {
+    const mobileMenuId = element.dataset[PLUGIN_KEY.CAMEL];
 
     return {
         menuSelector: mobileMenuId && `#${mobileMenuId}`,
@@ -18,27 +19,27 @@ function optionsFromData($element) {
 
 /*
  * Manage the behaviour of a mobile menu
- * @param {jQuery} $toggle
+ * @param {Element} toggle
  * @param {Object} [options]
  * @param {Object} [options.headerSelector]
  * @param {Object} [options.menuSelector]
  * @param {Object} [options.scrollViewSelector]
  */
 export class MobileMenuToggle {
-    constructor($toggle, {
+    constructor(toggle, {
         headerSelector = '.header',
         menuSelector = '#menu',
         scrollViewSelector = '.navPages',
     } = {}) {
-        this.$body = $('body');
-        this.$menu = $(menuSelector);
-        this.$navList = $('.navPages-list.navPages-list-depth-max');
-        this.$header = $(headerSelector);
-        this.$scrollView = $(scrollViewSelector, this.$menu);
-        this.$subMenus = this.$navList.find('.navPages-action');
-        this.$toggle = $toggle;
+        this.body = document.body;
+        this.menu = document.querySelector(menuSelector);
+        this.navList = document.querySelector('.navPages-list.navPages-list-depth-max');
+        this.header = document.querySelector(headerSelector);
+        this.scrollView = this.menu ? this.menu.querySelector(scrollViewSelector) : null;
+        this.subMenus = this.navList ? qsa('.navPages-action', this.navList) : [];
+        this.toggle = toggle;
         this.mediumMediaQueryList = mediaQueryListFactory('medium');
-        this.$preModalFocusedEl = null;
+        this.preModalFocusedEl = null;
         this.focusTrap = null;
 
         // Auto-bind
@@ -51,20 +52,24 @@ export class MobileMenuToggle {
         this.bindEvents();
 
         // Assign DOM attributes
-        this.$toggle.attr('aria-controls', this.$menu.attr('id'));
+        if (this.menu) {
+            this.toggle.setAttribute('aria-controls', this.menu.id);
+        }
 
         // Hide by default
         this.hide();
     }
 
     get isOpen() {
-        return this.$menu.hasClass('is-open');
+        return this.menu && this.menu.classList.contains('is-open');
     }
 
     bindEvents() {
-        this.$toggle.on('click', this.onToggleClick);
-        this.$header.on(CartPreviewEvents.open, this.onCartPreviewOpen);
-        this.$subMenus.on('click', this.onSubMenuClick);
+        this.toggle.addEventListener('click', this.onToggleClick);
+        if (this.header) {
+            this.header.addEventListener(CartPreviewEvents.open, this.onCartPreviewOpen);
+        }
+        this.subMenus.forEach(sub => sub.addEventListener('click', this.onSubMenuClick));
 
         if (this.mediumMediaQueryList && this.mediumMediaQueryList.addListener) {
             this.mediumMediaQueryList.addListener(this.onMediumMediaQueryMatch);
@@ -72,8 +77,10 @@ export class MobileMenuToggle {
     }
 
     unbindEvents() {
-        this.$toggle.off('click', this.onToggleClick);
-        this.$header.off(CartPreviewEvents.open, this.onCartPreviewOpen);
+        this.toggle.removeEventListener('click', this.onToggleClick);
+        if (this.header) {
+            this.header.removeEventListener(CartPreviewEvents.open, this.onCartPreviewOpen);
+        }
 
         if (this.mediumMediaQueryList && this.mediumMediaQueryList.addListener) {
             this.mediumMediaQueryList.removeListener(this.onMediumMediaQueryMatch);
@@ -81,19 +88,16 @@ export class MobileMenuToggle {
     }
 
     setupFocusTrap() {
-        if (!this.$preModalFocusedEl) this.$preModalFocusedEl = $(document.activeElement);
+        if (!this.preModalFocusedEl) this.preModalFocusedEl = document.activeElement;
 
         if (!this.focusTrap) {
-            this.focusTrap = focusTrap.createFocusTrap(this.$header[0], {
+            this.focusTrap = focusTrap.createFocusTrap(this.header, {
                 escapeDeactivates: false,
                 returnFocusOnDeactivate: false,
                 allowOutsideClick: true,
                 fallbackFocus: () => {
-                    const fallbackNode = this.$preModalFocusedEl && this.$preModalFocusedEl.length
-                        ? this.$preModalFocusedEl[0]
-                        : $('[data-mobile-menu-toggle="menu"]')[0];
-
-                    return fallbackNode;
+                    if (this.preModalFocusedEl) return this.preModalFocusedEl;
+                    return document.querySelector('[data-mobile-menu-toggle="menu"]') || document.body;
                 },
             });
         }
@@ -102,7 +106,7 @@ export class MobileMenuToggle {
         this.focusTrap.activate();
     }
 
-    toggle() {
+    toggleMenu() {
         if (this.isOpen) {
             this.hide();
         } else {
@@ -111,47 +115,40 @@ export class MobileMenuToggle {
     }
 
     show() {
-        this.$body.addClass('has-activeNavPages');
+        this.body.classList.add('has-activeNavPages');
 
-        this.$toggle
-            .addClass('is-open')
-            .attr('aria-expanded', true);
+        this.toggle.classList.add('is-open');
+        this.toggle.setAttribute('aria-expanded', 'true');
 
-        this.$menu.addClass('is-open');
-
-        this.$header.addClass('is-open');
-        this.$scrollView.scrollTop(0);
+        if (this.menu) this.menu.classList.add('is-open');
+        if (this.header) this.header.classList.add('is-open');
+        if (this.scrollView) this.scrollView.scrollTop = 0;
 
         this.resetSubMenus();
-
         this.setupFocusTrap();
     }
 
     hide() {
-        this.$body.removeClass('has-activeNavPages');
+        this.body.classList.remove('has-activeNavPages');
 
-        this.$toggle
-            .removeClass('is-open')
-            .attr('aria-expanded', false);
+        this.toggle.classList.remove('is-open');
+        this.toggle.setAttribute('aria-expanded', 'false');
 
-        this.$menu.removeClass('is-open');
-
-        this.$header.removeClass('is-open');
+        if (this.menu) this.menu.classList.remove('is-open');
+        if (this.header) this.header.classList.remove('is-open');
 
         this.resetSubMenus();
 
         if (this.focusTrap) this.focusTrap.deactivate();
+        if (this.preModalFocusedEl && this.preModalFocusedEl.focus) this.preModalFocusedEl.focus();
 
-        if (this.$preModalFocusedEl) this.$preModalFocusedEl.focus();
-
-        this.$preModalFocusedEl = null;
+        this.preModalFocusedEl = null;
     }
 
     // Private
     onToggleClick(event) {
         event.preventDefault();
-
-        this.toggle();
+        this.toggleMenu();
     }
 
     onCartPreviewOpen() {
@@ -164,58 +161,63 @@ export class MobileMenuToggle {
         if (!media.matches) {
             return;
         }
-
         this.hide();
     }
 
     onSubMenuClick(event) {
-        const $closestAction = $(event.target).closest('.navPages-action');
-        const $parentSiblings = $closestAction.parent().siblings();
-        const $parentAction = $closestAction.closest('.navPage-subMenu-horizontal').siblings('.navPages-action');
+        const closestAction = event.target.closest('.navPages-action');
+        if (!closestAction) return;
 
-        if (this.$subMenus.hasClass('is-open')) {
-            this.$navList.addClass('subMenu-is-open');
-        } else {
-            this.$navList.removeClass('subMenu-is-open');
+        const parentEl = closestAction.parentElement;
+        const parentSiblings = parentEl ? Array.from(parentEl.parentElement.children).filter(c => c !== parentEl) : [];
+        const horizontalSub = closestAction.closest('.navPage-subMenu-horizontal');
+        const parentActions = horizontalSub ? Array.from(horizontalSub.parentElement.children).filter(c => c.classList.contains('navPages-action') && c !== horizontalSub) : [];
+
+        const anyOpen = this.subMenus.some(s => s.classList.contains('is-open'));
+        if (anyOpen) {
+            if (this.navList) this.navList.classList.add('subMenu-is-open');
+        } else if (this.navList) {
+            this.navList.classList.remove('subMenu-is-open');
         }
 
-        if ($(event.target).hasClass('is-open')) {
-            $parentSiblings.addClass('is-hidden');
-            $parentAction.addClass('is-hidden');
+        if (event.target.classList.contains('is-open')) {
+            parentSiblings.forEach(s => s.classList.add('is-hidden'));
+            parentActions.forEach(a => a.classList.add('is-hidden'));
         } else {
-            $parentSiblings.removeClass('is-hidden');
-            $parentAction.removeClass('is-hidden');
+            parentSiblings.forEach(s => s.classList.remove('is-hidden'));
+            parentActions.forEach(a => a.classList.remove('is-hidden'));
         }
     }
 
     resetSubMenus() {
-        this.$navList.find('.is-hidden').removeClass('is-hidden');
-        this.$navList.removeClass('subMenu-is-open');
+        if (this.navList) {
+            qsa('.is-hidden', this.navList).forEach(el => el.classList.remove('is-hidden'));
+            this.navList.classList.remove('subMenu-is-open');
+        }
     }
 }
+
+const instanceMap = new WeakMap();
 
 /*
  * Create a new MobileMenuToggle instance
  * @param {string} [selector]
  * @param {Object} [options]
- * @param {Object} [options.headerSelector]
- * @param {Object} [options.menuSelector]
- * @param {Object} [options.scrollViewSelector]
  * @return {MobileMenuToggle}
  */
 export default function mobileMenuToggleFactory(selector = `[data-${PLUGIN_KEY.SNAKE}]`, overrideOptions = {}) {
-    const $toggle = $(selector).eq(0);
-    const instanceKey = `${PLUGIN_KEY.CAMEL}Instance`;
-    const cachedMobileMenu = $toggle.data(instanceKey);
+    const toggle = document.querySelector(selector);
+    if (!toggle) return null;
 
-    if (cachedMobileMenu instanceof MobileMenuToggle) {
-        return cachedMobileMenu;
+    const cached = instanceMap.get(toggle);
+    if (cached instanceof MobileMenuToggle) {
+        return cached;
     }
 
-    const options = _.extend(optionsFromData($toggle), overrideOptions);
-    const mobileMenu = new MobileMenuToggle($toggle, options);
+    const options = _.extend(optionsFromData(toggle), overrideOptions);
+    const mobileMenu = new MobileMenuToggle(toggle, options);
 
-    $toggle.data(instanceKey, mobileMenu);
+    instanceMap.set(toggle, mobileMenu);
 
     return mobileMenu;
 }

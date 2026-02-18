@@ -1,33 +1,39 @@
 import _ from 'lodash';
 import utils from '@bigcommerce/stencil-utils';
 import StencilDropDown from './stencil-dropdown';
+import { qsa } from '../common/dom';
 
 export default function () {
     const TOP_STYLING = 'top: 49px;';
-    const $quickSearchResults = $('.quickSearchResults');
-    const $quickSearchForms = $('[data-quick-search-form]');
-    const $quickSearchExpand = $('#quick-search-expand');
-    const $searchQuery = $quickSearchForms.find('[data-search-quick]');
+    const quickSearchResults = qsa('.quickSearchResults');
+    const quickSearchForms = qsa('[data-quick-search-form]');
+    const quickSearchExpand = document.getElementById('quick-search-expand');
+    const searchQueryInputs = quickSearchForms.reduce((acc, form) => {
+        const input = form.querySelector('[data-search-quick]');
+        if (input) acc.push(input);
+        return acc;
+    }, []);
     const stencilDropDownExtendables = {
         hide: () => {
-            $quickSearchExpand.attr('aria-expanded', false);
-            $searchQuery.trigger('blur');
+            if (quickSearchExpand) quickSearchExpand.setAttribute('aria-expanded', 'false');
+            searchQueryInputs.forEach(input => input.blur());
         },
         show: (event) => {
-            $quickSearchExpand.attr('aria-expanded', true);
-            $searchQuery.trigger('focus');
+            if (quickSearchExpand) quickSearchExpand.setAttribute('aria-expanded', 'true');
+            searchQueryInputs.forEach(input => input.focus());
             event.stopPropagation();
         },
     };
     const stencilDropDown = new StencilDropDown(stencilDropDownExtendables);
-    stencilDropDown.bind($('[data-search="quickSearch"]'), $('#quickSearch'), TOP_STYLING);
+    const searchTrigger = document.querySelector('[data-search="quickSearch"]');
+    const searchContainer = document.getElementById('quickSearch');
+    if (searchTrigger && searchContainer) {
+        stencilDropDown.bind(searchTrigger, searchContainer, TOP_STYLING);
+    }
 
-    stencilDropDownExtendables.onBodyClick = (e, $container) => {
-        // If the target element has this data tag or one of it's parents, do not close the search results
-        // We have to specify `.modal-background` because of limitations around Foundation Reveal not allowing
-        // any modification to the background element.
-        if ($(e.target).closest('[data-prevent-quick-search-close], .modal-background').length === 0) {
-            stencilDropDown.hide($container);
+    stencilDropDownExtendables.onBodyClick = (e, dropdownContainer) => {
+        if (!e.target.closest('[data-prevent-quick-search-close], .modal-background')) {
+            stencilDropDown.hide(dropdownContainer);
         }
     };
 
@@ -39,33 +45,35 @@ export default function () {
                 return false;
             }
 
-            $quickSearchResults.html(response);
-            const $quickSearchResultsCurrent = $quickSearchResults.filter(':visible');
+            quickSearchResults.forEach(el => { el.innerHTML = response; });
+            const visibleResults = quickSearchResults.filter(el => el.offsetParent !== null);
 
-            const $noResultsMessage = $quickSearchResultsCurrent.find('.quickSearchMessage');
-            if ($noResultsMessage.length) {
-                $noResultsMessage.attr({
-                    role: 'status',
-                    'aria-live': 'polite',
-                });
-            } else {
-                const $quickSearchAriaMessage = $quickSearchResultsCurrent.next();
-                $quickSearchAriaMessage.addClass('u-hidden');
+            visibleResults.forEach(resultEl => {
+                const noResultsMessage = resultEl.querySelector('.quickSearchMessage');
+                if (noResultsMessage) {
+                    noResultsMessage.setAttribute('role', 'status');
+                    noResultsMessage.setAttribute('aria-live', 'polite');
+                } else {
+                    const ariaMessage = resultEl.nextElementSibling;
+                    if (ariaMessage) {
+                        ariaMessage.classList.add('u-hidden');
 
-                const predefinedText = $quickSearchAriaMessage.data('search-aria-message-predefined-text');
-                const itemsFoundCount = $quickSearchResultsCurrent.find('.product').length;
+                        const predefinedText = ariaMessage.dataset.searchAriaMessagePredefinedText;
+                        const itemsFoundCount = resultEl.querySelectorAll('.product').length;
 
-                $quickSearchAriaMessage.text(`${itemsFoundCount} ${predefinedText} ${searchQuery}`);
+                        ariaMessage.textContent = `${itemsFoundCount} ${predefinedText} ${searchQuery}`;
 
-                setTimeout(() => {
-                    $quickSearchAriaMessage.removeClass('u-hidden');
-                }, 100);
-            }
+                        setTimeout(() => {
+                            ariaMessage.classList.remove('u-hidden');
+                        }, 100);
+                    }
+                }
+            });
         });
     }, debounceWaitTime);
 
     utils.hooks.on('search-quick', (event, currentTarget) => {
-        const searchQuery = $(currentTarget).val();
+        const searchQuery = currentTarget.value;
 
         // server will only perform search with at least 3 characters
         if (searchQuery.length < 3) {
@@ -76,17 +84,19 @@ export default function () {
     });
 
     // Catch the submission of the quick-search forms
-    $quickSearchForms.on('submit', event => {
-        event.preventDefault();
+    quickSearchForms.forEach(form => {
+        form.addEventListener('submit', event => {
+            event.preventDefault();
 
-        const $target = $(event.currentTarget);
-        const searchQuery = $target.find('input').val();
-        const searchUrl = $target.data('url');
+            const input = event.currentTarget.querySelector('input');
+            const searchQuery = input ? input.value : '';
+            const searchUrl = event.currentTarget.dataset.url;
 
-        if (searchQuery.length === 0) {
-            return;
-        }
+            if (searchQuery.length === 0) {
+                return;
+            }
 
-        window.location.href = `${searchUrl}?search_query=${encodeURIComponent(searchQuery)}`;
+            window.location.href = `${searchUrl}?search_query=${encodeURIComponent(searchQuery)}`;
+        });
     });
 }

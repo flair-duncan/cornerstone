@@ -1,14 +1,12 @@
 import 'focus-within-polyfill';
 
-import './global/jquery-migrate';
-import './common/select-option-plugin';
 import PageManager from './page-manager';
 import quickSearch from './global/quick-search';
 import currencySelector from './global/currency-selector';
 import languageSelector from './global/language-selector';
 import mobileMenuToggle from './global/mobile-menu-toggle';
 import menu from './global/menu';
-import foundation from './global/foundation';
+import initFoundation from './global/foundation';
 import quickView from './global/quick-view';
 import cartPreview from './global/cart-preview';
 import carousel from './common/carousel';
@@ -21,7 +19,7 @@ export default class Global extends PageManager {
         quickSearch();
         currencySelector(cartId);
         languageSelector();
-        foundation($(document));
+        initFoundation(document);
         quickView(this.context);
         carousel(this.context);
         menu();

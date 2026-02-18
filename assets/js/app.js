@@ -66,7 +66,7 @@ window.stencilBootstrap = function stencilBootstrap(pageType, contextJSON = null
 
     return {
         load() {
-            $(() => {
+            const onReady = () => {
                 // Load globals
                 if (loadGlobal) {
                     Global.load(context);
@@ -92,7 +92,13 @@ window.stencilBootstrap = function stencilBootstrap(pageType, contextJSON = null
                         imported.default.load(context);
                     });
                 });
-            });
+            };
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', onReady);
+            } else {
+                onReady();
+            }
         },
     };
 };

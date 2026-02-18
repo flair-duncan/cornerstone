@@ -1,21 +1,22 @@
 import collapsibleFactory from '../common/collapsible';
 import collapsibleGroupFactory from '../common/collapsible-group';
+import { qsa, delegate } from '../common/dom';
 
 const PLUGIN_KEY = 'menu';
 
 /*
  * Manage the behaviour of a menu
- * @param {jQuery} $menu
+ * @param {Element} menuEl
  */
 class Menu {
-    constructor($menu) {
-        this.$menu = $menu;
-        this.$body = $('body');
-        this.hasMaxMenuDisplayDepth = this.$body.find('.navPages-list').hasClass('navPages-list-depth-max');
+    constructor(menuEl) {
+        this.menu = menuEl;
+        this.body = document.body;
+        this.hasMaxMenuDisplayDepth = !!document.querySelector('.navPages-list.navPages-list-depth-max');
 
         // Init collapsible
-        this.collapsibles = collapsibleFactory('[data-collapsible]', { $context: this.$menu });
-        this.collapsibleGroups = collapsibleGroupFactory($menu);
+        this.collapsibles = collapsibleFactory('[data-collapsible]', { $context: this.menu });
+        this.collapsibleGroups = collapsibleGroupFactory(this.menu);
 
         // Auto-bind
         this.onMenuClick = this.onMenuClick.bind(this);
@@ -30,29 +31,32 @@ class Menu {
         this.collapsibleGroups.forEach(group => group.close());
     }
 
-    collapseNeighbors($neighbors) {
-        const $collapsibles = collapsibleFactory('[data-collapsible]', { $context: $neighbors });
-
-        $collapsibles.forEach($collapsible => $collapsible.close());
+    collapseNeighbors(neighbors) {
+        neighbors.forEach(neighbor => {
+            const collapsibles = collapsibleFactory('[data-collapsible]', { $context: neighbor });
+            collapsibles.forEach(c => c.close());
+        });
     }
 
     bindEvents() {
-        this.$menu.on('click', this.onMenuClick);
-        this.$body.on('click', this.onDocumentClick);
+        this.menu.addEventListener('click', this.onMenuClick);
+        this.body.addEventListener('click', this.onDocumentClick);
     }
 
     unbindEvents() {
-        this.$menu.off('click', this.onMenuClick);
-        this.$body.off('click', this.onDocumentClick);
+        this.menu.removeEventListener('click', this.onMenuClick);
+        this.body.removeEventListener('click', this.onDocumentClick);
     }
 
     onMenuClick(event) {
         event.stopPropagation();
 
         if (this.hasMaxMenuDisplayDepth) {
-            const $neighbors = $(event.target).parent().siblings();
-
-            this.collapseNeighbors($neighbors);
+            const parentEl = event.target.parentElement;
+            if (parentEl) {
+                const neighbors = Array.from(parentEl.parentElement.children).filter(c => c !== parentEl);
+                this.collapseNeighbors(neighbors);
+            }
         }
     }
 
@@ -61,23 +65,25 @@ class Menu {
     }
 }
 
+const instanceMap = new WeakMap();
+
 /*
  * Create a new Menu instance
  * @param {string} [selector]
  * @return {Menu}
  */
 export default function menuFactory(selector = `[data-${PLUGIN_KEY}]`) {
-    const $menu = $(selector).eq(0);
-    const instanceKey = `${PLUGIN_KEY}Instance`;
-    const cachedMenu = $menu.data(instanceKey);
+    const menuEl = document.querySelector(selector);
+    if (!menuEl) return null;
 
-    if (cachedMenu instanceof Menu) {
-        return cachedMenu;
+    const cached = instanceMap.get(menuEl);
+    if (cached instanceof Menu) {
+        return cached;
     }
 
-    const menu = new Menu($menu);
+    const menu = new Menu(menuEl);
 
-    $menu.data(instanceKey, menu);
+    instanceMap.set(menuEl, menu);
 
     return menu;
 }

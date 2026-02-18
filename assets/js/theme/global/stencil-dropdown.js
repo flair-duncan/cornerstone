@@ -1,72 +1,79 @@
+import { qsa, trigger } from '../common/dom';
+import { ModalEvents } from './modal';
+
 export default class StencilDropdown {
     constructor(extendables) {
         this.extendables = extendables;
     }
 
-    /**
-     * @param $dropDown
-     * @param style
-     */
-    hide($dropDown, style) {
+    hide(container, style) {
         if (style) {
-            $dropDown.attr('style', style);
+            container.setAttribute('style', style);
         }
 
-        // callback "hide"
         if (this.extendables && this.extendables.hide) {
             this.extendables.hide();
         }
 
-        $dropDown.removeClass('is-open f-open-dropdown').attr('aria-hidden', 'true');
+        container.classList.remove('is-open', 'f-open-dropdown');
+        container.setAttribute('aria-hidden', 'true');
     }
 
-    show($dropDown, event, style) {
+    show(container, event, style) {
         if (style) {
-            $dropDown.attr('style', style).attr('aria-hidden', 'false');
+            container.setAttribute('style', style);
+            container.setAttribute('aria-hidden', 'false');
         }
 
-        $dropDown.addClass('is-open f-open-dropdown').attr('aria-hidden', 'false');
+        container.classList.add('is-open', 'f-open-dropdown');
+        container.setAttribute('aria-hidden', 'false');
 
-        // callback "show"
         if (this.extendables && this.extendables.show) {
             this.extendables.show(event);
         }
     }
 
-    bind($dropDownTrigger, $container, style) {
+    bind(dropDownTrigger, container, style) {
         let modalOpened = false;
 
-        $dropDownTrigger.on('click', event => {
-            const $cart = $('.is-open[data-cart-preview]');
-
-            if ($cart) {
-                $cart.trigger('click');
+        dropDownTrigger.addEventListener('click', event => {
+            const openCart = document.querySelector('.is-open[data-cart-preview]');
+            if (openCart) {
+                openCart.click();
             }
 
-            if ($container.hasClass('is-open')) {
-                this.hide($container, event);
+            if (container.classList.contains('is-open')) {
+                this.hide(container, event);
             } else {
-                this.show($container, event, style);
+                this.show(container, event, style);
             }
         });
 
-        $('body').on('click', e => {
-            // Call onClick handler
+        document.body.addEventListener('click', e => {
             if (this.extendables && this.extendables.onBodyClick) {
-                this.extendables.onBodyClick(e, $container);
+                this.extendables.onBodyClick(e, container);
             }
-        }).on('keyup', (e) => {
-            // If they hit escape and the modal isn't open, close the search
+        });
+
+        document.body.addEventListener('keyup', (e) => {
             if (e.which === 27 && !modalOpened) {
-                this.hide($container);
+                this.hide(container);
             }
-        }).on('open.fndtn.reveal', '[data-reveal]', () => {
+        });
+
+        document.body.addEventListener(ModalEvents.open, () => {
             modalOpened = true;
-        }).on('close.fndtn.reveal', '[data-reveal]', () => {
+        });
+
+        document.body.addEventListener(ModalEvents.close, () => {
             modalOpened = false;
-        }).on('click', '[data-drop-down-close]', () => {
-            modalOpened = false;
-            this.hide($container);
+        });
+
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('[data-drop-down-close]')) {
+                modalOpened = false;
+                this.hide(container);
+            }
         });
     }
 }

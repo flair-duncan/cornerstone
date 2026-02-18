@@ -1,35 +1,40 @@
+import { qsa } from '../common/dom';
+
 const revealCloseAttr = 'revealClose';
 const revealCloseSelector = `[data-${revealCloseAttr}]`;
 const revealSelector = '[data-reveal]';
 
+const buttonInstanceMap = new WeakMap();
+
 class RevealClose {
-    constructor($button) {
-        this.$button = $button;
-        this.modalId = $button.data(revealCloseAttr);
+    constructor(button) {
+        this.button = button;
+        this.modalId = button.dataset[revealCloseAttr] || '';
 
         this.onClick = this.onClick.bind(this);
-
         this.bindEvents();
     }
 
     get modal() {
-        let $modal;
+        let modalEl;
 
         if (this.modalId) {
-            $modal = $(`#${this.modalId}`);
+            modalEl = document.getElementById(this.modalId);
         } else {
-            $modal = this.$button.parents(revealSelector).eq(0);
+            modalEl = this.button.closest(revealSelector);
         }
 
-        return $modal.data('modalInstance');
+        // Modal instances are stored via the modalFactory WeakMap
+        // We access .modalInstance which the Modal constructor sets on the element
+        return modalEl && modalEl._modalInstance;
     }
 
     bindEvents() {
-        this.$button.on('click', this.onClick);
+        this.button.addEventListener('click', this.onClick);
     }
 
     unbindEvents() {
-        this.$button.off('click', this.onClick);
+        this.button.removeEventListener('click', this.onClick);
     }
 
     onClick(event) {
@@ -37,41 +42,23 @@ class RevealClose {
 
         if (modal) {
             event.preventDefault();
-
             modal.close();
         }
     }
 }
 
-/*
- * Extend foundation.reveal with the ability to close a modal by clicking on any of its child element
- * with data-reveal-close attribute.
- *
- * @example
- *
- * <div data-reveal id="helloModal">
- *   <button data-reveal-close>Continue</button>
- * </div>
- *
- * <div data-reveal id="helloModal"></div>
- * <button data-reveal-close="helloModal">Continue</button>
- */
 export default function revealCloseFactory(selector = revealCloseSelector, options = {}) {
-    const $buttons = $(selector, options.$context);
+    const context = options.$context || document;
+    const buttons = qsa(selector, context);
 
-    return $buttons.map((index, element) => {
-        const $button = $(element);
-        const instanceKey = `${revealCloseAttr}Instance`;
-        const cachedButton = $button.data(instanceKey);
-
-        if (cachedButton instanceof RevealClose) {
-            return cachedButton;
+    return buttons.map(button => {
+        const cached = buttonInstanceMap.get(button);
+        if (cached instanceof RevealClose) {
+            return cached;
         }
 
-        const button = new RevealClose($button);
-
-        $button.data(instanceKey, button);
-
-        return button;
-    }).toArray();
+        const rc = new RevealClose(button);
+        buttonInstanceMap.set(button, rc);
+        return rc;
+    });
 }

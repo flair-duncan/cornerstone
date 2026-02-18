@@ -1,6 +1,5 @@
-import 'foundation-sites/js/foundation/foundation';
-import 'foundation-sites/js/foundation/foundation.dropdown';
 import utils from '@bigcommerce/stencil-utils';
+import { qsa, trigger } from '../common/dom';
 
 export const CartPreviewEvents = {
     close: 'closed.fndtn.dropdown',
@@ -9,62 +8,66 @@ export const CartPreviewEvents = {
 
 export default function (secureBaseUrl, cartId) {
     const loadingClass = 'is-loading';
-    const $cart = $('[data-cart-preview]');
-    const $cartDropdown = $('#cart-preview-dropdown');
-    const $cartLoading = $('<div class="loadingOverlay"></div>');
+    const cart = document.querySelector('[data-cart-preview]');
+    const cartDropdown = document.getElementById('cart-preview-dropdown');
+    const cartLoading = document.createElement('div');
+    cartLoading.className = 'loadingOverlay';
 
-    const $body = $('body');
-
-    if (window.ApplePaySession) {
-        $cartDropdown.addClass('apple-pay-supported');
+    if (window.ApplePaySession && cartDropdown) {
+        cartDropdown.classList.add('apple-pay-supported');
     }
 
-    $body.on('cart-quantity-update', (event, quantity) => {
-        $cart.attr('aria-label', (_, prevValue) => prevValue.replace(/\d+/, quantity));
+    document.body.addEventListener('cart-quantity-update', (event) => {
+        const quantity = event.detail;
 
-        if (!quantity) {
-            $cart.addClass('navUser-item--cart__hidden-s');
-        } else {
-            $cart.removeClass('navUser-item--cart__hidden-s');
+        if (cart) {
+            const label = cart.getAttribute('aria-label') || '';
+            cart.setAttribute('aria-label', label.replace(/\d+/, quantity));
+
+            if (!quantity) {
+                cart.classList.add('navUser-item--cart__hidden-s');
+            } else {
+                cart.classList.remove('navUser-item--cart__hidden-s');
+            }
         }
 
-        $('.cart-quantity')
-            .text(quantity)
-            .toggleClass('countPill--positive', quantity > 0);
+        qsa('.cart-quantity').forEach(el => {
+            el.textContent = quantity;
+            el.classList.toggle('countPill--positive', quantity > 0);
+        });
         if (utils.tools.storage.localStorageAvailable()) {
             localStorage.setItem('cart-quantity', quantity);
         }
     });
 
-    $cart.on('click', event => {
-        const options = {
-            template: 'common/cart-preview',
-        };
+    if (cart) {
+        cart.addEventListener('click', event => {
+            const options = {
+                template: 'common/cart-preview',
+            };
 
-        // Redirect to full cart page
-        //
-        // https://developer.mozilla.org/en-US/docs/Browser_detection_using_the_user_agent
-        // In summary, we recommend looking for the string 'Mobi' anywhere in the User Agent to detect a mobile device.
-        if (/Mobi/i.test(navigator.userAgent)) {
-            return event.stopPropagation();
-        }
+            // Redirect to full cart page on mobile
+            if (/Mobi/i.test(navigator.userAgent)) {
+                return event.stopPropagation();
+            }
 
-        event.preventDefault();
+            event.preventDefault();
 
-        $cartDropdown
-            .addClass(loadingClass)
-            .html($cartLoading);
-        $cartLoading
-            .show();
+            if (cartDropdown) {
+                cartDropdown.classList.add(loadingClass);
+                cartDropdown.innerHTML = '';
+                cartDropdown.appendChild(cartLoading);
+                cartLoading.style.display = '';
+            }
 
-        utils.api.cart.getContent(options, (err, response) => {
-            $cartDropdown
-                .removeClass(loadingClass)
-                .html(response);
-            $cartLoading
-                .hide();
+            utils.api.cart.getContent(options, (err, response) => {
+                if (cartDropdown) {
+                    cartDropdown.classList.remove(loadingClass);
+                    cartDropdown.innerHTML = response;
+                }
+            });
         });
-    });
+    }
 
     let quantity = 0;
 
@@ -73,7 +76,7 @@ export default function (secureBaseUrl, cartId) {
         if (utils.tools.storage.localStorageAvailable()) {
             if (localStorage.getItem('cart-quantity')) {
                 quantity = Number(localStorage.getItem('cart-quantity'));
-                $body.trigger('cart-quantity-update', quantity);
+                trigger(document.body, 'cart-quantity-update', quantity);
             }
         }
 
@@ -81,7 +84,6 @@ export default function (secureBaseUrl, cartId) {
         const cartQtyPromise = new Promise((resolve, reject) => {
             utils.api.cart.getCartQuantity({ baseUrl: secureBaseUrl, cartId }, (err, qty) => {
                 if (err) {
-                    // If this appears to be a 404 for the cart ID, set cart quantity to 0
                     if (err === 'Not Found') {
                         resolve(0);
                     } else {
@@ -95,9 +97,9 @@ export default function (secureBaseUrl, cartId) {
         // If the Cart API gives us a different quantity number, update it
         cartQtyPromise.then(qty => {
             quantity = qty;
-            $body.trigger('cart-quantity-update', quantity);
+            trigger(document.body, 'cart-quantity-update', quantity);
         });
     } else {
-        $body.trigger('cart-quantity-update', quantity);
+        trigger(document.body, 'cart-quantity-update', quantity);
     }
 }

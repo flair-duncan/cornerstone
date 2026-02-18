@@ -1,5 +1,6 @@
 import { showAlertModal } from './modal';
 import utils from '@bigcommerce/stencil-utils';
+import { qsa, delegate } from '../common/dom';
 
 let currencySelectorCalled = false;
 
@@ -13,20 +14,22 @@ export default function (cartId) {
     }
 
     function changeCurrency(url, currencyCode) {
-        $.ajax({
-            url,
-            contentType: 'application/json',
+        fetch(url, {
             method: 'POST',
-            data: JSON.stringify({ currencyCode }),
-        }).done(() => {
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ currencyCode }),
+        }).then(resp => {
+            if (!resp.ok) {
+                return resp.json().then(data => { throw new Error(data.error); });
+            }
             window.location.reload();
-        }).fail((e) => {
-            showAlertModal(JSON.parse(e.responseText).error);
+        }).catch(e => {
+            showAlertModal(e.message || String(e));
         });
     }
 
-    $('[data-cart-currency-switch-url]').on('click', event => {
-        const currencySessionSwitcher = event.target.href;
+    delegate(document.body, 'click', '[data-cart-currency-switch-url]', (event, el) => {
+        const currencySessionSwitcher = el.href;
         event.preventDefault();
         utils.api.cart.getCart({ cartId }, (err, response) => {
             if (err || response === undefined) {
@@ -39,19 +42,19 @@ export default function (cartId) {
                 || response.lineItems.giftCertificates.length > 0;
 
             if (showWarning) {
-                const text = $(event.target).data('warning');
-                const $preModalFocusedEl = $('.navUser-action--currencySelector');
+                const text = el.dataset.warning;
+                const preModalFocusedEl = document.querySelector('.navUser-action--currencySelector');
 
                 showAlertModal(text, {
                     icon: 'warning',
                     showCancelButton: true,
-                    $preModalFocusedEl,
+                    $preModalFocusedEl: preModalFocusedEl,
                     onConfirm: () => {
-                        changeCurrency($(event.target).data('cart-currency-switch-url'), $(event.target).data('currency-code'));
+                        changeCurrency(el.dataset.cartCurrencySwitchUrl, el.dataset.currencyCode);
                     },
                 });
             } else {
-                changeCurrency($(event.target).data('cart-currency-switch-url'), $(event.target).data('currency-code'));
+                changeCurrency(el.dataset.cartCurrencySwitchUrl, el.dataset.currencyCode);
             }
         });
     });

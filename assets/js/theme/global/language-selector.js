@@ -1,11 +1,12 @@
+import { qsa } from '../common/dom';
+
 /**
  * Language Selector - renders native language names using Intl.DisplayNames API
  */
 
 export default function languageSelector() {
-    $('[data-locale-code]').each((index, element) => {
-        const $element = $(element);
-        const languageCode = $element.data('locale-code');
+    qsa('[data-locale-code]').forEach(element => {
+        const languageCode = element.dataset.localeCode;
 
         if (typeof Intl !== 'undefined' && typeof Intl.DisplayNames !== 'undefined') {
             try {
@@ -13,16 +14,16 @@ export default function languageSelector() {
                     type: 'language',
                 });
                 const nativeName = displayNames.of(languageCode);
-                const $activeLanguage = $element.find('strong');
+                const activeLanguage = element.querySelector('strong');
 
-                if ($activeLanguage.length > 0) {
-                    $activeLanguage.text(nativeName);
+                if (activeLanguage) {
+                    activeLanguage.textContent = nativeName;
                 } else {
-                    $element.text(nativeName);
+                    element.textContent = nativeName;
                 }
 
-                if ($element.attr('aria-label')) {
-                    $element.attr('aria-label', nativeName);
+                if (element.getAttribute('aria-label')) {
+                    element.setAttribute('aria-label', nativeName);
                 }
             } catch (error) {
                 // eslint-disable-next-line no-console

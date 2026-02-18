@@ -1,27 +1,17 @@
-import 'foundation-sites/js/foundation/foundation';
-import 'foundation-sites/js/foundation/foundation.dropdown';
 import utils from '@bigcommerce/stencil-utils';
 import Review from '../product/reviews';
 import ProductDetails from '../common/product-details';
 import { defaultModal, ModalEvents } from './modal';
-import 'slick-carousel';
 import { setCarouselState, onSlickCarouselChange, onUserCarouselChange } from '../common/carousel';
+import { delegate, qsa } from '../common/dom';
 
 export default function (context) {
     const modal = defaultModal();
 
-    $('body').on('click', '.quickview', event => {
+    delegate(document.body, 'click', '.quickview', (event, el) => {
         event.preventDefault();
 
-        const productId = $(event.currentTarget).data('productId');
-        const handleDropdownExpand = ({ currentTarget }) => {
-            const $dropdownMenu = $(currentTarget);
-            const dropdownBtnHeight = $dropdownMenu.prev().outerHeight();
-
-            $dropdownMenu.css('top', dropdownBtnHeight);
-
-            return modal.$modal.one(ModalEvents.close, () => $dropdownMenu.off('opened.fndtn.dropdown', handleDropdownExpand));
-        };
+        const productId = el.dataset.productId;
 
         modal.open({ size: 'large' });
 
@@ -30,31 +20,35 @@ export default function (context) {
 
             modal.updateContent(response);
 
-            $('#modal .dropdown-menu').on('opened.fndtn.dropdown', handleDropdownExpand);
-            modal.$content.find('.productView').addClass('productView--quickView');
+            const productView = modal.$content.querySelector('.productView');
+            if (productView) productView.classList.add('productView--quickView');
 
-            const $carousel = modal.$content.find('[data-slick]');
-            if ($carousel.length) {
-                $carousel.on('init breakpoint swipe', setCarouselState);
-                $carousel.on('click', '.slick-arrow, .slick-dots', setCarouselState);
+            const carousel = modal.$content.querySelector('[data-slick]');
+            if (carousel) {
+                carousel.addEventListener('init', e => setCarouselState(e));
+                carousel.addEventListener('breakpoint', e => setCarouselState(e));
+                carousel.addEventListener('swipe', e => setCarouselState(e));
 
-                $carousel.on('init afterChange', (e, carouselObj) => onSlickCarouselChange(e, carouselObj, context));
-                $carousel.on('click', '.slick-arrow, .slick-dots', $carousel, e => onUserCarouselChange(e, context));
-                $carousel.on('swipe', (e, carouselObj) => onUserCarouselChange(e, context, carouselObj.$slider));
+                delegate(carousel, 'click', '.slick-arrow, .slick-dots', () => setCarouselState({ target: carousel }));
 
-                if (modal.$modal.hasClass('open')) {
-                    $carousel.slick();
-                } else {
-                    modal.$modal.one(ModalEvents.opened, () => {
-                        if ($.contains(document, $carousel[0])) $carousel.slick();
-                    });
+                carousel.addEventListener('init', e => onSlickCarouselChange(e, null, context));
+                carousel.addEventListener('afterChange', e => onSlickCarouselChange(e, null, context));
+                delegate(carousel, 'click', '.slick-arrow, .slick-dots', e => onUserCarouselChange(e, context));
+                carousel.addEventListener('swipe', e => onUserCarouselChange(e, context));
+
+                // Initialize carousel via our vanilla carousel module
+                if (typeof carousel.initCarousel === 'function') {
+                    carousel.initCarousel();
                 }
             }
 
             /* eslint-disable no-new */
             new Review({ $context: modal.$content });
 
-            return new ProductDetails(modal.$content.find('.quickView'), context);
+            const quickViewEl = modal.$content.querySelector('.quickView');
+            if (quickViewEl) {
+                return new ProductDetails(quickViewEl, context);
+            }
         });
     });
 }
