@@ -1,7 +1,5 @@
 import utils from '@bigcommerce/stencil-utils';
 import ProductDetailsBase from './product-details-base';
-import 'foundation-sites/js/foundation/foundation';
-import 'foundation-sites/js/foundation/foundation.reveal';
 import ImageGallery from '../product/image-gallery';
 import modalFactory, { alertModal, showAlertModal, ModalEvents } from '../global/modal';
 import { isEmpty, isPlainObject } from 'lodash';
@@ -12,90 +10,116 @@ import { normalizeFormData } from './utils/api';
 import { isBrowserIE, convertIntoArray } from './utils/ie-helpers';
 import bannerUtils from './utils/banner-utils';
 import currencySelector from '../global/currency-selector';
+import { qsa, delegate } from './dom';
+
+/**
+ * Serialize form data as URL-encoded string (replaces jQuery .serialize())
+ */
+function serializeForm(form) {
+    return new URLSearchParams(new FormData(form)).toString();
+}
+
+/**
+ * Convert form data into array of {name, value} objects (replaces jQuery .serializeArray())
+ */
+function serializeFormArray(form) {
+    const result = [];
+    const formData = new FormData(form);
+    formData.forEach((value, name) => {
+        result.push({ name, value });
+    });
+    return result;
+}
 
 export default class ProductDetails extends ProductDetailsBase {
-    constructor($scope, context, productAttributesData = {}) {
-        super($scope, context);
+    constructor(scope, context, productAttributesData = {}) {
+        super(scope, context);
 
         this.isCartPage = context.template === 'pages/cart';
-        this.$overlay = $('[data-cart-item-add] .loadingOverlay');
-        this.imageGallery = new ImageGallery($('[data-image-gallery]', this.$scope));
+        this.overlay = this.$scope ? this.$scope.querySelector('[data-cart-item-add] .loadingOverlay') : null;
+        this.imageGallery = new ImageGallery(this.$scope ? this.$scope.querySelector('[data-image-gallery]') : null);
         this.imageGallery.init();
         this.listenQuantityChange();
-        this.$swatchOptionMessage = $('.swatch-option-message');
+        this.swatchOptionMessages = qsa('.swatch-option-message');
         this.swatchInitMessageStorage = {};
-        this.swatchGroupIdList = $('[id^="swatchGroup"]').map((_, group) => $(group).attr('id'));
+        this.swatchGroupIds = qsa('[id^="swatchGroup"]').map(el => el.id);
         this.storeInitMessagesForSwatches();
         this.updateDateSelector();
 
-        const $form = $('form[data-cart-item-add]', $scope);
+        const form = this.$scope ? this.$scope.querySelector('form[data-cart-item-add]') : null;
 
-        if ($form[0].checkValidity()) {
+        if (form && form.checkValidity()) {
             this.updateProductDetailsData();
         } else {
             this.toggleWalletButtonsVisibility(false);
         }
 
         this.addToCartValidator = nod({
-            submit: $form.find('input#form-action-addToCart'),
+            submit: form ? form.querySelector('input#form-action-addToCart') : null,
             tap: announceInputErrorMessage,
         });
 
-        const $productOptionsElement = $('[data-product-option-change]', $form);
-        const $productSwatchGroup = $('[id*="attribute_swatch"]', $form);
-        const $productSwatchLabels = $('.form-option-swatch', $form);
-        const placeSwatchLabelImage = (_, label) => {
-            const $optionImage = $('.form-option-expanded', $(label));
-            const optionImageWidth = $optionImage.outerWidth();
+        const productOptionsElement = form ? form.querySelector('[data-product-option-change]') : null;
+        const productSwatchGroups = form ? qsa('[id*="attribute_swatch"]', form) : [];
+        const productSwatchLabels = form ? qsa('.form-option-swatch', form) : [];
+
+        const placeSwatchLabelImage = (label) => {
+            const optionImage = label.querySelector('.form-option-expanded');
+            if (!optionImage) return;
+            const optionImageWidth = optionImage.offsetWidth;
             const extendedOptionImageOffsetLeft = 55;
             const { right } = label.getBoundingClientRect();
             const emptySpaceToScreenRightBorder = window.screen.width - right;
             const shiftValue = optionImageWidth - emptySpaceToScreenRightBorder;
 
             if (emptySpaceToScreenRightBorder < (optionImageWidth + extendedOptionImageOffsetLeft)) {
-                $optionImage.css('left', `${shiftValue > 0 ? -shiftValue : shiftValue}px`);
+                optionImage.style.left = `${shiftValue > 0 ? -shiftValue : shiftValue}px`;
             }
         };
 
-        $(window).on('load', () => {
+        window.addEventListener('load', () => {
             this.registerAddToCartValidation();
-            $.each($productSwatchLabels, placeSwatchLabelImage);
+            productSwatchLabels.forEach(placeSwatchLabelImage);
         });
 
         if (context.showSwatchNames) {
-            this.$swatchOptionMessage.removeClass('u-hidden');
+            this.swatchOptionMessages.forEach(el => el.classList.remove('u-hidden'));
 
-            $productSwatchGroup.on('change', ({ target }) => {
-                const swatchGroupElement = target.parentNode.parentNode;
+            productSwatchGroups.forEach(group => {
+                group.addEventListener('change', ({ target }) => {
+                    const swatchGroupElement = target.parentNode.parentNode;
+                    this.showSwatchNameOnOption(target, swatchGroupElement);
+                });
 
-                this.showSwatchNameOnOption($(target), $(swatchGroupElement));
-            });
-
-            $.each($productSwatchGroup, (_, element) => {
-                const swatchGroupElement = element.parentNode.parentNode;
-
-                if ($(element).is(':checked')) this.showSwatchNameOnOption($(element), $(swatchGroupElement));
+                if (group.checked) {
+                    const swatchGroupElement = group.parentNode.parentNode;
+                    this.showSwatchNameOnOption(group, swatchGroupElement);
+                }
             });
         }
 
-        $productOptionsElement.on('change', event => {
-            this.productOptionsChanged(event);
-            this.setProductVariant();
-        });
+        if (productOptionsElement) {
+            productOptionsElement.addEventListener('change', event => {
+                this.productOptionsChanged(event);
+                this.setProductVariant();
+            });
+        }
 
-        $form.on('submit', event => {
-            this.addToCartValidator.performCheck();
+        if (form) {
+            form.addEventListener('submit', event => {
+                this.addToCartValidator.performCheck();
 
-            if (this.addToCartValidator.areAll('valid')) {
-                this.addProductToCart(event, $form[0]);
-            }
-        });
+                if (this.addToCartValidator.areAll('valid')) {
+                    this.addProductToCart(event, form);
+                }
+            });
+        }
 
         this.updateProductAttributes(productAttributesData);
         this.updateView(productAttributesData, null);
         bannerUtils.dispatchProductBannerEvent(productAttributesData);
 
-        $productOptionsElement.show();
+        if (productOptionsElement) productOptionsElement.style.display = '';
 
         this.previewModal = modalFactory('#previewModal')[0];
     }
@@ -114,10 +138,11 @@ export default class ProductDetails extends ProductDetailsBase {
     }
 
     storeInitMessagesForSwatches() {
-        if (this.swatchGroupIdList.length && isEmpty(this.swatchInitMessageStorage)) {
-            this.swatchGroupIdList.each((_, swatchGroupId) => {
+        if (this.swatchGroupIds.length && isEmpty(this.swatchInitMessageStorage)) {
+            this.swatchGroupIds.forEach(swatchGroupId => {
                 if (!this.swatchInitMessageStorage[swatchGroupId]) {
-                    this.swatchInitMessageStorage[swatchGroupId] = $(`#${swatchGroupId} ~ .swatch-option-message`).text().trim();
+                    const msgEl = document.querySelector(`#${swatchGroupId} ~ .swatch-option-message`);
+                    this.swatchInitMessageStorage[swatchGroupId] = msgEl ? msgEl.textContent.trim() : '';
                 }
             });
         }
@@ -127,7 +152,7 @@ export default class ProductDetails extends ProductDetailsBase {
         const unsatisfiedRequiredFields = [];
         const options = [];
 
-        $.each($('[data-product-attribute]'), (index, value) => {
+        document.querySelectorAll('[data-product-attribute]').forEach(value => {
             const optionLabel = value.children[0].innerText;
             const optionTitle = optionLabel.split(':')[0].trim();
             const required = optionLabel.toLowerCase().includes('required');
@@ -211,16 +236,19 @@ export default class ProductDetails extends ProductDetailsBase {
         });
 
         let productVariant = unsatisfiedRequiredFields.length === 0 ? options.sort().join(', ') : 'unsatisfied';
-        const view = $('.productView');
+        const view = document.querySelector('.productView');
 
-        if (productVariant) {
+        if (productVariant && view) {
             productVariant = productVariant === 'unsatisfied' ? '' : productVariant;
-            if (view.attr('data-event-type')) {
-                view.attr('data-product-variant', productVariant);
+            if (view.getAttribute('data-event-type')) {
+                view.setAttribute('data-product-variant', productVariant);
             } else {
-                const productName = view.find('.productView-title')[0].innerText.replace(/"/g, '\\$&');
-                const card = $(`[data-name="${productName}"]`);
-                card.attr('data-product-variant', productVariant);
+                const titleEl = view.querySelector('.productView-title');
+                if (titleEl) {
+                    const productName = titleEl.innerText.replace(/"/g, '\\$&');
+                    const card = document.querySelector(`[data-name="${productName}"]`);
+                    if (card) card.setAttribute('data-product-variant', productVariant);
+                }
             }
         }
     }
@@ -238,21 +266,20 @@ export default class ProductDetails extends ProductDetailsBase {
     }
 
     /**
-     *
      * Handle product options changes
-     *
      */
     productOptionsChanged(event) {
-        const $changedOption = $(event.target);
-        const $form = $changedOption.parents('form');
-        const productId = $('[name="product_id"]', $form).val();
+        const changedOption = event.target;
+        const form = changedOption.closest('form');
+        const productIdInput = form ? form.querySelector('[name="product_id"]') : null;
+        const productId = productIdInput ? productIdInput.value : '';
 
         // Do not trigger an ajax request if it's a file or if the browser doesn't support FormData
-        if ($changedOption.attr('type') === 'file' || window.FormData === undefined) {
+        if (changedOption.type === 'file' || window.FormData === undefined) {
             return;
         }
 
-        utils.api.productAttributes.optionChange(productId, $form.serialize(), 'products/bulk-discount-rates', (err, response) => {
+        utils.api.productAttributes.optionChange(productId, serializeForm(form), 'products/bulk-discount-rates', (err, response) => {
             const productAttributesData = response.data || {};
             const productAttributesContent = response.content || {};
             this.updateProductAttributes(productAttributesData);
@@ -260,9 +287,10 @@ export default class ProductDetails extends ProductDetailsBase {
             this.updateProductDetailsData();
             bannerUtils.dispatchProductBannerEvent(productAttributesData);
 
-            if (!this.checkIsQuickViewChild($form)) {
-                const $context = $form.parents('.productView').find('.productView-info');
-                modalFactory('[data-reveal]', { $context });
+            if (!this.checkIsQuickViewChild(form)) {
+                const productView = form.closest('.productView');
+                const infoContext = productView ? productView.querySelector('.productView-info') : null;
+                if (infoContext) modalFactory('[data-reveal]', { $context: infoContext });
             }
 
             document.dispatchEvent(new CustomEvent('onProductOptionsChanged', {
@@ -279,25 +307,26 @@ export default class ProductDetails extends ProductDetailsBase {
      * if this setting is enabled in Page Builder
      * show name for swatch option
      */
-    showSwatchNameOnOption($swatch, $swatchGroup) {
-        const swatchName = $swatch.attr('aria-label');
-        const activeSwatchGroupId = $swatchGroup.attr('aria-labelledby');
-        const $swatchOptionMessage = $(`#${activeSwatchGroupId} ~ .swatch-option-message`);
+    showSwatchNameOnOption(swatch, swatchGroup) {
+        const swatchName = swatch.getAttribute('aria-label');
+        const activeSwatchGroupId = swatchGroup.getAttribute('aria-labelledby');
+        const swatchOptionMessage = document.querySelector(`#${activeSwatchGroupId} ~ .swatch-option-message`);
 
-        $('[data-option-value]', $swatchGroup).text(swatchName);
-        $swatchOptionMessage.text(`${this.swatchInitMessageStorage[activeSwatchGroupId]} ${swatchName}`);
-        this.setLiveRegionAttributes($swatchOptionMessage, 'status', 'assertive');
+        const optionValueEl = swatchGroup.querySelector('[data-option-value]');
+        if (optionValueEl) optionValueEl.textContent = swatchName;
+        if (swatchOptionMessage) {
+            swatchOptionMessage.textContent = `${this.swatchInitMessageStorage[activeSwatchGroupId]} ${swatchName}`;
+            this.setLiveRegionAttributes(swatchOptionMessage, 'status', 'assertive');
+        }
     }
 
-    setLiveRegionAttributes($element, roleType, ariaLiveStatus) {
-        $element.attr({
-            role: roleType,
-            'aria-live': ariaLiveStatus,
-        });
+    setLiveRegionAttributes(element, roleType, ariaLiveStatus) {
+        element.setAttribute('role', roleType);
+        element.setAttribute('aria-live', ariaLiveStatus);
     }
 
-    checkIsQuickViewChild($element) {
-        return !!$element.parents('.quickView').length;
+    checkIsQuickViewChild(element) {
+        return !!element.closest('.quickView');
     }
 
     showProductImage(image) {
@@ -305,27 +334,11 @@ export default class ProductDetails extends ProductDetailsBase {
             const zoomImageUrl = utils.tools.imageSrcset.getSrcset(
                 image.data,
                 { '1x': this.context.zoomSize },
-                /*
-                    Should match zoom size used for data-zoom-image in
-                    components/products/product-view.html
-
-                    Note that this will only be used as a fallback image for browsers that do not support srcset
-
-                    Also note that getSrcset returns a simple src string when exactly one size is provided
-                */
             );
 
             const mainImageUrl = utils.tools.imageSrcset.getSrcset(
                 image.data,
                 { '1x': this.context.productSize },
-                /*
-                    Should match fallback image size used for the main product image in
-                    components/products/product-view.html
-
-                    Note that this will only be used as a fallback image for browsers that do not support srcset
-
-                    Also note that getSrcset returns a simple src string when exactly one size is provided
-                */
             );
 
             const mainImageSrcset = utils.tools.imageSrcset.getSrcset(image.data);
@@ -341,31 +354,32 @@ export default class ProductDetails extends ProductDetailsBase {
     }
 
     /**
-     *
      * Handle action when the shopper clicks on + / - for quantity
-     *
      */
     listenQuantityChange() {
-        this.$scope.on('click', '[data-quantity-change] button', event => {
-            event.preventDefault();
-            const $target = $(event.currentTarget);
-            const viewModel = this.getViewModel(this.$scope);
-            const $input = viewModel.quantity.$input;
-            const quantityMin = parseInt($input.data('quantityMin'), 10);
-            const quantityMax = parseInt($input.data('quantityMax'), 10);
+        if (!this.$scope) return;
 
-            let qty = forms.numbersOnly($input.val()) ? parseInt($input.val(), 10) : quantityMin;
+        delegate(this.$scope, 'click', '[data-quantity-change] button', (event) => {
+            event.preventDefault();
+            const target = event.target.closest('button');
+            const viewModel = this.getViewModel(this.$scope);
+            const input = viewModel.quantity.input;
+            if (!input) return;
+            const quantityMin = parseInt(input.dataset.quantityMin, 10);
+            const quantityMax = parseInt(input.dataset.quantityMax, 10);
+
+            let qty = forms.numbersOnly(input.value) ? parseInt(input.value, 10) : quantityMin;
             // If action is incrementing
-            if ($target.data('action') === 'inc') {
+            if (target && target.dataset.action === 'inc') {
                 qty = forms.validateIncreaseAgainstMaxBoundary(qty, quantityMax);
             } else if (qty > 1) {
                 qty = forms.validateDecreaseAgainstMinBoundary(qty, quantityMin);
             }
 
             // update hidden input
-            viewModel.quantity.$input.val(qty);
+            input.value = qty;
             // update text
-            viewModel.quantity.$text.text(qty);
+            if (viewModel.quantity.text) viewModel.quantity.text.textContent = qty;
             // perform validation after updating product quantity
             this.addToCartValidator.performCheck();
 
@@ -373,29 +387,30 @@ export default class ProductDetails extends ProductDetailsBase {
         });
 
         // Prevent triggering quantity change when pressing enter
-        this.$scope.on('keypress', '.form-input--incrementTotal', event => {
-            // If the browser supports event.which, then use event.which, otherwise use event.keyCode
-            const x = event.which || event.keyCode;
-            if (x === 13) {
-                // Prevent default
-                event.preventDefault();
+        this.$scope.addEventListener('keypress', event => {
+            if (event.target.matches('.form-input--incrementTotal')) {
+                const x = event.which || event.keyCode;
+                if (x === 13) {
+                    event.preventDefault();
+                }
             }
         });
 
-        this.$scope.on('keyup', '.form-input--incrementTotal', () => {
-            this.updateProductDetailsData();
+        this.$scope.addEventListener('keyup', event => {
+            if (event.target.matches('.form-input--incrementTotal')) {
+                this.updateProductDetailsData();
+            }
         });
     }
 
     /**
-     *
      * Add a product to cart
-     *
      */
     addProductToCart(event, form) {
-        const $addToCartBtn = $('#form-action-addToCart', $(event.target));
-        const originalBtnVal = $addToCartBtn.val();
-        const waitMessage = $addToCartBtn.data('waitMessage');
+        const addToCartBtn = form.querySelector('#form-action-addToCart');
+        if (!addToCartBtn) return;
+        const originalBtnVal = addToCartBtn.value;
+        const waitMessage = addToCartBtn.dataset.waitMessage;
 
         // Do not do AJAX if browser doesn't support FormData
         if (window.FormData === undefined) {
@@ -405,22 +420,20 @@ export default class ProductDetails extends ProductDetailsBase {
         // Prevent default
         event.preventDefault();
 
-        $addToCartBtn
-            .val(waitMessage)
-            .prop('disabled', true);
+        addToCartBtn.value = waitMessage;
+        addToCartBtn.disabled = true;
 
-        this.$overlay.show();
+        if (this.overlay) this.overlay.style.display = '';
 
         // Add item to cart
         utils.api.cart.itemAdd(normalizeFormData(new FormData(form)), (err, response) => {
             currencySelector(response.data.cart_id);
             const errorMessage = err || response.data.error;
 
-            $addToCartBtn
-                .val(originalBtnVal)
-                .prop('disabled', false);
+            addToCartBtn.value = originalBtnVal;
+            addToCartBtn.disabled = false;
 
-            this.$overlay.hide();
+            if (this.overlay) this.overlay.style.display = 'none';
 
             // Guard statement
             if (errorMessage) {
@@ -428,8 +441,8 @@ export default class ProductDetails extends ProductDetailsBase {
                 const tmp = document.createElement('DIV');
                 tmp.innerHTML = errorMessage;
 
-                if (!this.checkIsQuickViewChild($addToCartBtn)) {
-                    alertModal().$preModalFocusedEl = $addToCartBtn;
+                if (!this.checkIsQuickViewChild(addToCartBtn)) {
+                    alertModal().$preModalFocusedEl = addToCartBtn;
                 }
 
                 return showAlertModal(tmp.textContent || tmp.innerText);
@@ -440,29 +453,27 @@ export default class ProductDetails extends ProductDetailsBase {
                 this.previewModal.open();
 
                 if (window.ApplePaySession) {
-                    this.previewModal.$modal.addClass('apple-pay-supported');
+                    this.previewModal.modal.classList.add('apple-pay-supported');
                 }
 
-                if (!this.checkIsQuickViewChild($addToCartBtn)) {
-                    this.previewModal.$preModalFocusedEl = $addToCartBtn;
+                if (!this.checkIsQuickViewChild(addToCartBtn)) {
+                    this.previewModal.$preModalFocusedEl = addToCartBtn;
                 }
 
                 this.updateCartContent(this.previewModal, response.data.cart_item.id);
             } else {
-                this.$overlay.show();
+                if (this.overlay) this.overlay.style.display = '';
                 // if no modal, redirect to the cart page
                 this.redirectTo(response.data.cart_item.cart_url || this.context.urls.cart);
             }
         });
 
-        this.setLiveRegionAttributes($addToCartBtn.next(), 'status', 'polite');
+        const nextSibling = addToCartBtn.nextElementSibling;
+        if (nextSibling) this.setLiveRegionAttributes(nextSibling, 'status', 'polite');
     }
 
     /**
      * Get cart contents
-     *
-     * @param {String} cartItemId
-     * @param {Function} onComplete
      */
     getCartContent(cartItemId, onComplete) {
         const options = {
@@ -484,8 +495,6 @@ export default class ProductDetails extends ProductDetailsBase {
 
     /**
      * Redirect to url
-     *
-     * @param {String} url
      */
     redirectTo(url) {
         if (this.isRunningInIframe() && !window.iframeSdk) {
@@ -497,10 +506,6 @@ export default class ProductDetails extends ProductDetailsBase {
 
     /**
      * Update cart content
-     *
-     * @param {Modal} modal
-     * @param {String} cartItemId
-     * @param {Function} onComplete
      */
     updateCartContent(modal, cartItemId, onComplete) {
         this.getCartContent(cartItemId, (err, response) => {
@@ -511,40 +516,49 @@ export default class ProductDetails extends ProductDetailsBase {
             modal.updateContent(response);
 
             // Update cart counter
-            const $body = $('body');
-            const $cartQuantity = $('[data-cart-quantity]', modal.$content);
-            const $cartCounter = $('.navUser-action .cart-count');
-            const quantity = $cartQuantity.data('cartQuantity') || 0;
-            const $promotionBanner = $('[data-promotion-banner]');
-            const $backToShopppingBtn = $('.previewCartCheckout > [data-reveal-close]');
-            const $modalCloseBtn = $('#previewModal > .modal-close');
+            const body = document.body;
+            const modalContent = modal.modal;
+            const cartQuantityEl = modalContent ? modalContent.querySelector('[data-cart-quantity]') : null;
+            const cartCounter = document.querySelector('.navUser-action .cart-count');
+            const quantity = cartQuantityEl ? cartQuantityEl.dataset.cartQuantity || 0 : 0;
+            const promotionBanner = document.querySelector('[data-promotion-banner]');
+            const backToShoppingBtn = modalContent ? modalContent.querySelector('.previewCartCheckout > [data-reveal-close]') : null;
+            const modalCloseBtn = document.querySelector('#previewModal > .modal-close');
             const bannerUpdateHandler = () => {
-                const $productContainer = $('#main-content > .container');
+                const productContainer = document.querySelector('#main-content > .container');
 
-                $productContainer.append('<div class="loadingOverlay pdp-update"></div>');
-                $('.loadingOverlay.pdp-update', $productContainer).show();
+                if (productContainer) {
+                    const overlay = document.createElement('div');
+                    overlay.className = 'loadingOverlay pdp-update';
+                    productContainer.appendChild(overlay);
+                    overlay.style.display = '';
+                }
                 window.location.reload();
             };
 
-            $cartCounter.addClass('cart-count--positive');
-            $body.trigger('cart-quantity-update', quantity);
+            if (cartCounter) cartCounter.classList.add('cart-count--positive');
+            body.dispatchEvent(new CustomEvent('cart-quantity-update', { detail: quantity, bubbles: true }));
 
             if (onComplete) {
                 onComplete(response);
             }
 
             if (this.isCartPage) {
-                modal.$modal.one(ModalEvents.closed, () => {
-                    // Close quick search overlay if it's open (ESC and backdrop click don't close it automatically)
-                    const $searchContainer = $('#quickSearch');
-                    if ($searchContainer.hasClass('is-open')) {
-                        $searchContainer.removeClass('is-open').attr('aria-hidden', 'true');
+                // Listen for modal close once
+                const closedHandler = () => {
+                    // Close quick search overlay if it's open
+                    const searchContainer = document.getElementById('quickSearch');
+                    if (searchContainer && searchContainer.classList.contains('is-open')) {
+                        searchContainer.classList.remove('is-open');
+                        searchContainer.setAttribute('aria-hidden', 'true');
                     }
                     bannerUpdateHandler();
-                });
-            } else if ($promotionBanner.length && $backToShopppingBtn.length) {
-                $backToShopppingBtn.on('click', bannerUpdateHandler);
-                $modalCloseBtn.on('click', bannerUpdateHandler);
+                    modal.modal.removeEventListener(ModalEvents.closed, closedHandler);
+                };
+                modal.modal.addEventListener(ModalEvents.closed, closedHandler);
+            } else if (promotionBanner && backToShoppingBtn) {
+                backToShoppingBtn.addEventListener('click', bannerUpdateHandler);
+                if (modalCloseBtn) modalCloseBtn.addEventListener('click', bannerUpdateHandler);
             }
         });
     }
@@ -559,8 +573,9 @@ export default class ProductDetails extends ProductDetailsBase {
     }
 
     updateProductDetailsData() {
-        const $form = $('form[data-cart-item-add]');
-        const formDataItems = $form.serializeArray();
+        const form = document.querySelector('form[data-cart-item-add]');
+        if (!form) return;
+        const formDataItems = serializeFormArray(form);
 
         const productDetails = {};
 
@@ -594,49 +609,49 @@ export default class ProductDetails extends ProductDetailsBase {
     }
 
     updateDateSelector() {
-        this.$scope.each((i, scope) => {
-            function updateDays(dateOption) {
-                const monthSelector = dateOption.querySelector('select[name$="[month]"]');
-                const daySelector = dateOption.querySelector('select[name$="[day]"]');
-                const yearSelector = dateOption.querySelector('select[name$="[year]"]');
-                const month = parseInt(monthSelector.value, 10);
-                const year = parseInt(yearSelector.value, 10);
-                let daysInMonth;
+        if (!this.$scope) return;
 
-                if (!Number.isNaN(month) && !Number.isNaN(year)) {
-                    switch (month) {
-                    case 2:
-                        daysInMonth = (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0) ? 29 : 28;
-                        break;
-                    case 4: case 6: case 9: case 11:
-                        daysInMonth = 30;
-                        break;
-                    default:
-                        daysInMonth = 31;
-                    }
+        function updateDays(dateOption) {
+            const monthSelector = dateOption.querySelector('select[name$="[month]"]');
+            const daySelector = dateOption.querySelector('select[name$="[day]"]');
+            const yearSelector = dateOption.querySelector('select[name$="[year]"]');
+            const month = parseInt(monthSelector.value, 10);
+            const year = parseInt(yearSelector.value, 10);
+            let daysInMonth;
 
-                    for (let day = 29; day <= 31; day++) {
-                        const option = daySelector.querySelector(`option[value="${day}"]`);
-                        if (day <= daysInMonth && !option) {
-                            daySelector.options.add(new Option(day, day));
-                        } else if (day > daysInMonth && option) {
-                            option.remove();
-                        }
+            if (!Number.isNaN(month) && !Number.isNaN(year)) {
+                switch (month) {
+                case 2:
+                    daysInMonth = (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0) ? 29 : 28;
+                    break;
+                case 4: case 6: case 9: case 11:
+                    daysInMonth = 30;
+                    break;
+                default:
+                    daysInMonth = 31;
+                }
+
+                for (let day = 29; day <= 31; day++) {
+                    const option = daySelector.querySelector(`option[value="${day}"]`);
+                    if (day <= daysInMonth && !option) {
+                        daySelector.options.add(new Option(day, day));
+                    } else if (day > daysInMonth && option) {
+                        option.remove();
                     }
                 }
             }
+        }
 
-            $(scope).on('change', (e) => {
-                const dateOption = e.target && e.target.closest && e.target.closest('[data-product-attribute=date]');
+        this.$scope.addEventListener('change', (e) => {
+            const dateOption = e.target && e.target.closest && e.target.closest('[data-product-attribute=date]');
 
-                if (dateOption) {
-                    updateDays(dateOption);
-                }
-            });
-
-            scope.querySelectorAll('[data-product-attribute=date]').forEach(dateOption => {
+            if (dateOption) {
                 updateDays(dateOption);
-            });
+            }
+        });
+
+        this.$scope.querySelectorAll('[data-product-attribute=date]').forEach(dateOption => {
+            updateDays(dateOption);
         });
     }
 }
