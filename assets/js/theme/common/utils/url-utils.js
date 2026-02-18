@@ -5,7 +5,7 @@ const urlUtils = {
 
     goToUrl: (url) => {
         window.history.pushState({}, document.title, url);
-        $(window).trigger('statechange');
+        window.dispatchEvent(new Event('statechange'));
     },
 
     replaceParams: (url, params) => {

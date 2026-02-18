@@ -1,24 +1,28 @@
-const changeWishlistPaginationLinks = (wishlistUrl, ...paginationItems) => $.each(paginationItems, (_, $item) => {
-    const paginationLink = $item.children('.pagination-link');
+const changeWishlistPaginationLinks = (wishlistUrl, ...paginationItems) => {
+    paginationItems.forEach(item => {
+        if (!item) return;
+        const paginationLink = item.querySelector('.pagination-link');
 
-    if ($item.length && !paginationLink.attr('href').includes('page=')) {
-        const pageNumber = paginationLink.attr('href');
-        paginationLink.attr('href', `${wishlistUrl}page=${pageNumber}`);
-    }
-});
+        if (paginationLink && !paginationLink.getAttribute('href').includes('page=')) {
+            const pageNumber = paginationLink.getAttribute('href');
+            paginationLink.setAttribute('href', `${wishlistUrl}page=${pageNumber}`);
+        }
+    });
+};
 
 /**
  * helps to withdraw differences in structures around the stencil resource pagination
  */
 export const wishlistPaginatorHelper = () => {
-    const $paginationList = $('.pagination-list');
+    const paginationList = document.querySelector('.pagination-list');
 
-    if (!$paginationList.length) return;
+    if (!paginationList) return;
 
-    const $nextItem = $('.pagination-item--next', $paginationList);
-    const $prevItem = $('.pagination-item--previous', $paginationList);
-    const currentHref = $('[data-pagination-current-page-link]').attr('href');
+    const nextItem = paginationList.querySelector('.pagination-item--next');
+    const prevItem = paginationList.querySelector('.pagination-item--previous');
+    const currentPageLink = document.querySelector('[data-pagination-current-page-link]');
+    const currentHref = currentPageLink ? currentPageLink.getAttribute('href') : '';
     const partialPaginationUrl = currentHref.split('page=').shift();
 
-    changeWishlistPaginationLinks(partialPaginationUrl, $prevItem, $nextItem);
+    changeWishlistPaginationLinks(partialPaginationUrl, prevItem, nextItem);
 };

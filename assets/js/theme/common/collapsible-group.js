@@ -1,15 +1,19 @@
 import { CollapsibleEvents } from './collapsible';
+import { qsa } from './dom';
 
 const PLUGIN_KEY = 'collapsible-group';
+
+// WeakMap for instance caching
+const instanceCache = new WeakMap();
 
 /*
  * Manage multiple instances of collapsibles. For example, if a collapsible is
  * about to open and there's one already open, close the latter first.
- * @param {jQuery} $component
+ * @param {Element} component
  */
 export class CollapsibleGroup {
-    constructor($component) {
-        this.$component = $component;
+    constructor(component) {
+        this.component = component;
         this.openCollapsible = null;
 
         // Auto bind
@@ -27,16 +31,17 @@ export class CollapsibleGroup {
     }
 
     bindEvents() {
-        this.$component.on(CollapsibleEvents.open, this.onCollapsibleOpen);
-        this.$component.on(CollapsibleEvents.close, this.onCollapsibleClose);
+        this.component.addEventListener(CollapsibleEvents.open, this.onCollapsibleOpen);
+        this.component.addEventListener(CollapsibleEvents.close, this.onCollapsibleClose);
     }
 
     unbindEvents() {
-        this.$component.off(CollapsibleEvents.open, this.onCollapsibleOpen);
-        this.$component.off(CollapsibleEvents.close, this.onCollapsibleClose);
+        this.component.removeEventListener(CollapsibleEvents.open, this.onCollapsibleOpen);
+        this.component.removeEventListener(CollapsibleEvents.close, this.onCollapsibleClose);
     }
 
-    onCollapsibleOpen(event, collapsibleInstance) {
+    onCollapsibleOpen(event) {
+        const collapsibleInstance = event.detail;
         if (this.openCollapsible && this.openCollapsible.hasCollapsible(collapsibleInstance)) {
             return;
         }
@@ -46,7 +51,8 @@ export class CollapsibleGroup {
         this.openCollapsible = collapsibleInstance;
     }
 
-    onCollapsibleClose(event, collapsibleInstance) {
+    onCollapsibleClose(event) {
+        const collapsibleInstance = event.detail;
         if (this.openCollapsible && this.openCollapsible.hasCollapsible(collapsibleInstance)) {
             return;
         }
@@ -59,25 +65,24 @@ export class CollapsibleGroup {
  * Create new CollapsibleGroup instances
  * @param {string} [selector]
  * @param {Object} [options]
- * @param {Object} [options.$context]
+ * @param {Element} [options.$context]
  * @return {Array} array of CollapsibleGroup instances
  */
 export default function collapsibleGroupFactory(selector = `[data-${PLUGIN_KEY}]`, options = {}) {
-    const $groups = $(selector, options.$context);
-    const instanceKey = `${PLUGIN_KEY}Instance`;
+    const context = options.$context instanceof Element ? options.$context : document;
+    const elements = qsa(selector, context);
 
-    return $groups.map((index, element) => {
-        const $group = $(element);
-        const cachedGroup = $group.data(instanceKey);
+    return elements.map(element => {
+        const cached = instanceCache.get(element);
 
-        if (cachedGroup instanceof CollapsibleGroup) {
-            return cachedGroup;
+        if (cached instanceof CollapsibleGroup) {
+            return cached;
         }
 
-        const group = new CollapsibleGroup($group);
+        const group = new CollapsibleGroup(element);
 
-        $group.data(instanceKey, group);
+        instanceCache.set(element, group);
 
         return group;
-    }).toArray();
+    });
 }

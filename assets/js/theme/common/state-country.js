@@ -4,23 +4,41 @@ import { insertStateHiddenField } from './utils/form-utils';
 import { showAlertModal } from '../global/modal';
 
 /**
- * Extracts attributes from a jQuery element into a plain object
- * @param {jQuery} element - The element to extract attributes from
+ * Extracts attributes from a DOM element into a plain object
+ * @param {Element} element - The element to extract attributes from
  * @returns {Object} Plain object with attribute name-value pairs
  */
 function getElementAttributes(element) {
-    return _.transform(element.prop('attributes'), (result, item) => {
-        const ret = result;
-        ret[item.name] = item.value;
-        return ret;
+    const result = {};
+    Array.from(element.attributes).forEach(attr => {
+        result[attr.name] = attr.value;
     });
+    return result;
+}
+
+/**
+ * Creates a replacement element with given attributes
+ * @param {string} tagName - 'select' or 'input'
+ * @param {Object} attrs - Attributes to set
+ * @returns {Element}
+ */
+function createReplacementElement(tagName, attrs) {
+    const el = document.createElement(tagName);
+    Object.entries(attrs).forEach(([key, value]) => {
+        if (key === 'class') {
+            el.className = value;
+        } else {
+            el.setAttribute(key, value);
+        }
+    });
+    return el;
 }
 
 /**
  * Creates a select element for states when the country has states AND they are required
- * @param {jQuery} stateElement - The current state input element
+ * @param {Element} stateElement - The current state input element
  * @param {Object} context - Context object containing translated strings
- * @returns {jQuery} The new select element
+ * @returns {Element} The new select element
  */
 function makeStateSelectRequired(stateElement, context) {
     const attrs = getElementAttributes(stateElement);
@@ -31,29 +49,34 @@ function makeStateSelectRequired(stateElement, context) {
         'aria-required': 'true',
     };
 
-    stateElement.replaceWith($('<select></select>', replacementAttributes));
+    const newSelect = createReplacementElement('select', replacementAttributes);
+    stateElement.replaceWith(newSelect);
 
-    const $newElement = $('[data-field-type="State"]');
-    const $hiddenInput = $('[name*="FormFieldIsText"]');
+    const newElement = document.querySelector('[data-field-type="State"]');
+    const hiddenInputs = document.querySelectorAll('[name*="FormFieldIsText"]');
 
-    if ($hiddenInput.length !== 0) {
-        $hiddenInput.remove();
+    hiddenInputs.forEach(input => input.remove());
+
+    if (newElement) {
+        const prevEl = newElement.previousElementSibling;
+        if (prevEl) {
+            const small = prevEl.querySelector('small');
+            if (!small) {
+                // String is injected from localizer
+                prevEl.insertAdjacentHTML('beforeend', `<small>${context.required}</small>`);
+            } else {
+                small.style.display = '';
+            }
+        }
     }
 
-    if ($newElement.prev().find('small').length === 0) {
-        // String is injected from localizer
-        $newElement.prev().append(`<small>${context.required}</small>`);
-    } else {
-        $newElement.prev().find('small').show();
-    }
-
-    return $newElement;
+    return newElement;
 }
 
 /**
  * Creates a select element for states when the country has states but they are NOT required
- * @param {jQuery} stateElement - The current state input element
- * @returns {jQuery} The new select element
+ * @param {Element} stateElement - The current state input element
+ * @returns {Element} The new select element
  */
 function makeStateSelectOptional(stateElement) {
     const attrs = getElementAttributes(stateElement);
@@ -64,25 +87,30 @@ function makeStateSelectOptional(stateElement) {
         'aria-required': 'false',
     };
 
-    stateElement.replaceWith($('<select></select>', replacementAttributes));
+    const newSelect = createReplacementElement('select', replacementAttributes);
+    stateElement.replaceWith(newSelect);
 
-    const $newElement = $('[data-field-type="State"]');
-    const $hiddenInput = $('[name*="FormFieldIsText"]');
+    const newElement = document.querySelector('[data-field-type="State"]');
+    const hiddenInputs = document.querySelectorAll('[name*="FormFieldIsText"]');
 
-    if ($hiddenInput.length !== 0) {
-        $hiddenInput.remove();
-    }
+    hiddenInputs.forEach(input => input.remove());
 
     // Hide the required indicator since state is optional
-    $newElement.prev().find('small').hide();
+    if (newElement) {
+        const prevEl = newElement.previousElementSibling;
+        if (prevEl) {
+            const small = prevEl.querySelector('small');
+            if (small) small.style.display = 'none';
+        }
+    }
 
-    return $newElement;
+    return newElement;
 }
 
 /**
  * Creates a text input for states when the country has no states list
- * @param {jQuery} stateElement - The current state element
- * @returns {jQuery} The new text input element
+ * @param {Element} stateElement - The current state element
+ * @returns {Element} The new text input element
  */
 function makeStateTextOptional(stateElement) {
     const attrs = getElementAttributes(stateElement);
@@ -93,30 +121,35 @@ function makeStateTextOptional(stateElement) {
         class: 'form-input',
     };
 
-    stateElement.replaceWith($('<input />', replacementAttributes));
+    const newInput = createReplacementElement('input', replacementAttributes);
+    stateElement.replaceWith(newInput);
 
-    const $newElement = $('[data-field-type="State"]');
+    const newElement = document.querySelector('[data-field-type="State"]');
 
-    if ($newElement.length !== 0) {
-        insertStateHiddenField($newElement);
-        $newElement.prev().find('small').hide();
+    if (newElement) {
+        insertStateHiddenField(newElement);
+        const prevEl = newElement.previousElementSibling;
+        if (prevEl) {
+            const small = prevEl.querySelector('small');
+            if (small) small.style.display = 'none';
+        }
     }
 
-    return $newElement;
+    return newElement;
 }
 
 /**
  * Adds the array of options from the remote request to the newly created select box.
  * @param {Object} statesArray
- * @param {jQuery} $selectElement
+ * @param {Element} selectElement
  * @param {Object} options
  */
-function addOptions(statesArray, $selectElement, options) {
+function addOptions(statesArray, selectElement, options) {
     const container = [];
 
     container.push(`<option value="">${statesArray.prefix}</option>`);
 
-    if (!_.isEmpty($selectElement)) {
+    if (selectElement) {
         statesArray.states.forEach((stateObj) => {
             if (options.useIdForStates) {
                 container.push(`<option value="${stateObj.id}">${stateObj.name}</option>`);
@@ -125,25 +158,29 @@ function addOptions(statesArray, $selectElement, options) {
             }
         });
 
-        $selectElement.html(container.join(' '));
+        selectElement.innerHTML = container.join(' ');
     }
 }
 
 /**
  * Makes the zip/postal code field required and shows the required indicator
- * @param {jQuery} $zipElement The zip/postal code field element
+ * @param {Element} zipElement The zip/postal code field element
  * @param {Object} context The context object containing translated strings
  */
-function makeZipRequired($zipElement, context) {
-    $zipElement.prop('required', true);
+function makeZipRequired(zipElement, context) {
+    zipElement.required = true;
     // since the attribute is set within templates/components/common/forms/*,
     // we explicitly set aria-required to ensure assistive technologies announce this field correctly after dynamic changes
-    $zipElement.attr('aria-required', 'true');
+    zipElement.setAttribute('aria-required', 'true');
 
-    if ($zipElement.prev().find('small').length === 0) {
-        $zipElement.prev().append(`<small>${context.required}</small>`);
-    } else {
-        $zipElement.prev().find('small').show();
+    const prevEl = zipElement.previousElementSibling;
+    if (prevEl) {
+        const small = prevEl.querySelector('small');
+        if (!small) {
+            prevEl.insertAdjacentHTML('beforeend', `<small>${context.required}</small>`);
+        } else {
+            small.style.display = '';
+        }
     }
 }
 
@@ -158,26 +195,26 @@ function makeZipRequired($zipElement, context) {
  * </label>
  * <input data-field-type="Zip" />
  *
- * @param {jQuery} $zipElement The zip/postal code field element
+ * @param {Element} zipElement The zip/postal code field element
  */
-function makeZipOptional($zipElement) {
-    $zipElement.prop('required', false);
+function makeZipOptional(zipElement) {
+    zipElement.required = false;
     // since the attribute is set within templates/components/common/forms/*,
     // we explicitly set aria-required to ensure assistive technologies announce this field correctly after dynamic changes
-    $zipElement.attr('aria-required', false);
+    zipElement.setAttribute('aria-required', 'false');
 
-    const $prevElement = $zipElement.prev();
-    if ($prevElement.length > 0) {
-        const $requiredIndicator = $prevElement.find('small');
-        if ($requiredIndicator.length > 0) {
-            $requiredIndicator.hide();
+    const prevEl = zipElement.previousElementSibling;
+    if (prevEl) {
+        const small = prevEl.querySelector('small');
+        if (small) {
+            small.style.display = 'none';
         }
     }
 }
 
 /**
  *
- * @param {jQuery} stateElement
+ * @param {Element} stateElement
  * @param {Object} context
  * @param {Object} options
  * @param {Function} callback
@@ -198,54 +235,56 @@ export default function (stateElement, context = {}, options, callback) {
         /* eslint-enable no-param-reassign */
     }
 
-    $('select[data-field-type="Country"]').on('change', event => {
-        const countryName = $(event.currentTarget).val();
+    document.querySelectorAll('select[data-field-type="Country"]').forEach(countrySelect => {
+        countrySelect.addEventListener('change', event => {
+            const countryName = event.currentTarget.value;
 
-        if (countryName === '') {
-            return;
-        }
-
-        utils.api.country.getByName(countryName, (err, response) => {
-            if (err) {
-                showAlertModal(context.state_error);
-                return callback(err);
+            if (countryName === '') {
+                return;
             }
 
-            const $currentInput = $('[data-field-type="State"]');
-            const $zipInput = $('[data-field-type="Zip"]');
-
-            const hasStates = !_.isEmpty(response.data.states);
-            const requiresState = response.data.requiresSubdivision !== undefined
-                ? response.data.requiresSubdivision
-                : hasStates;
-
-            let $newElement;
-
-            if (hasStates) {
-                if (requiresState) {
-                    $newElement = makeStateSelectRequired($currentInput, context);
-                } else {
-                    $newElement = makeStateSelectOptional($currentInput);
+            utils.api.country.getByName(countryName, (err, response) => {
+                if (err) {
+                    showAlertModal(context.state_error);
+                    return callback(err);
                 }
-                addOptions(response.data, $newElement, options);
-            } else {
-                $newElement = makeStateTextOptional($currentInput);
-            }
 
-            if ($zipInput.length > 0) {
-                // Default to true when requiresPostalCodes is undefined to maintain original behavior
-                const requiresZip = response.data.requiresPostalCodes !== undefined
-                    ? response.data.requiresPostalCodes
-                    : true;
+                const currentInput = document.querySelector('[data-field-type="State"]');
+                const zipInput = document.querySelector('[data-field-type="Zip"]');
 
-                if (requiresZip) {
-                    makeZipRequired($zipInput, context);
+                const hasStates = !_.isEmpty(response.data.states);
+                const requiresState = response.data.requiresSubdivision !== undefined
+                    ? response.data.requiresSubdivision
+                    : hasStates;
+
+                let newElement;
+
+                if (hasStates) {
+                    if (requiresState) {
+                        newElement = makeStateSelectRequired(currentInput, context);
+                    } else {
+                        newElement = makeStateSelectOptional(currentInput);
+                    }
+                    addOptions(response.data, newElement, options);
                 } else {
-                    makeZipOptional($zipInput);
+                    newElement = makeStateTextOptional(currentInput);
                 }
-            }
 
-            callback(null, $newElement, requiresState);
+                if (zipInput) {
+                    // Default to true when requiresPostalCodes is undefined to maintain original behavior
+                    const requiresZip = response.data.requiresPostalCodes !== undefined
+                        ? response.data.requiresPostalCodes
+                        : true;
+
+                    if (requiresZip) {
+                        makeZipRequired(zipInput, context);
+                    } else {
+                        makeZipOptional(zipInput);
+                    }
+                }
+
+                callback(null, newElement, requiresState);
+            });
         });
     });
 }

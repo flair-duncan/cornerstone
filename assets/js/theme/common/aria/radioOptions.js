@@ -1,15 +1,18 @@
 import { ariaKeyCodes } from './constants';
+import { delegate } from '../dom';
 
-const setCheckedRadioItem = (itemCollection, itemIdx) => {
-    itemCollection.each((idx, item) => {
-        const $item = $(item);
+const setCheckedRadioItem = (items, itemIdx) => {
+    items.forEach((item, idx) => {
         if (idx !== itemIdx) {
-            $item.attr('aria-checked', false).prop('checked', false);
+            item.setAttribute('aria-checked', 'false');
+            item.checked = false;
             return;
         }
 
-        $item.attr('aria-checked', true).prop('checked', true).trigger('focus');
-        $item.trigger('change');
+        item.setAttribute('aria-checked', 'true');
+        item.checked = true;
+        item.focus();
+        item.dispatchEvent(new Event('change', { bubbles: true }));
     });
 };
 
@@ -21,10 +24,10 @@ const calculateTargetItemPosition = (lastItemIdx, currentIdx) => {
     }
 };
 
-const handleItemKeyDown = itemCollection => e => {
+const handleItemKeyDown = items => e => {
     const { keyCode } = e;
-    const itemIdx = itemCollection.index(e.currentTarget);
-    const lastCollectionItemIdx = itemCollection.length - 1;
+    const itemIdx = Array.from(items).indexOf(e.currentTarget);
+    const lastCollectionItemIdx = items.length - 1;
 
     if (Object.values(ariaKeyCodes).includes(keyCode)) {
         e.preventDefault();
@@ -35,15 +38,15 @@ const handleItemKeyDown = itemCollection => e => {
     case ariaKeyCodes.LEFT:
     case ariaKeyCodes.UP: {
         const prevItemIdx = calculateTargetItemPosition(lastCollectionItemIdx, itemIdx - 1);
-        itemCollection.eq(prevItemIdx).trigger('focus');
-        setCheckedRadioItem(itemCollection, prevItemIdx);
+        items[prevItemIdx].focus();
+        setCheckedRadioItem(items, prevItemIdx);
         break;
     }
     case ariaKeyCodes.RIGHT:
     case ariaKeyCodes.DOWN: {
         const nextItemIdx = calculateTargetItemPosition(lastCollectionItemIdx, itemIdx + 1);
-        itemCollection.eq(nextItemIdx).trigger('focus');
-        setCheckedRadioItem(itemCollection, nextItemIdx);
+        items[nextItemIdx].focus();
+        setCheckedRadioItem(items, nextItemIdx);
         break;
     }
 
@@ -51,8 +54,10 @@ const handleItemKeyDown = itemCollection => e => {
     }
 };
 
-export default ($container, itemSelector) => {
-    const $itemCollection = $container.find(itemSelector);
+export default (container, itemSelector) => {
+    const el = container instanceof Element ? container : document.querySelector(container);
+    if (!el) return;
+    const items = Array.from(el.querySelectorAll(itemSelector));
 
-    $container.on('keydown', itemSelector, handleItemKeyDown($itemCollection));
+    delegate(el, 'keydown', itemSelector, handleItemKeyDown(items));
 };

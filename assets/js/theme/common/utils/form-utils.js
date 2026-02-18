@@ -24,21 +24,20 @@ export const createPasswordValidationErrorTextObject = (empty, confirm, mismatch
 
 /**
  * Apply class name to an input element on its type
- * @param {object} input
+ * @param {Element} input
  * @param {string} formFieldClass
- * @return {object} Element itself
  */
 function classifyInput(input, formFieldClass) {
-    const $input = $(input);
-    const $formField = $input.parent(`.${formFieldClass}`);
-    const tagName = $input.prop('tagName').toLowerCase();
+    const formField = input.closest(`.${formFieldClass}`);
+    if (!formField) return;
+    const tagName = input.tagName.toLowerCase();
 
     let className = `${formFieldClass}--${tagName}`;
     let specificClassName;
 
     // Input can be text/checkbox/radio etc...
     if (tagName === 'input') {
-        const inputType = $input.prop('type');
+        const inputType = input.type;
 
         if (['radio', 'checkbox', 'submit'].includes(inputType)) {
             // ie: .form-field--checkbox, .form-field--radio
@@ -50,56 +49,38 @@ function classifyInput(input, formFieldClass) {
     }
 
     // Apply class modifier
-    return $formField
-        .addClass(className)
-        .addClass(specificClassName);
+    formField.classList.add(className);
+    if (specificClassName) {
+        formField.classList.add(specificClassName);
+    }
 }
 
 /**
  * Apply class name to each input element in a form based on its type
- * @example
- * // Before
- * <form id="form">
- *     <div class="form-field">
- *         <input type="text">
- *     </div>
- *     <div class="form-field">
- *         <select>...</select>
- *     </div>
- * </form>
- *
- * classifyForm('#form', { formFieldClass: 'form-field' });
- *
- * // After
- * <div class="form-field form-field--input form-field--inputText">...</div>
- * <div class="form-field form-field--select">...</div>
- *
- * @param {string|object} formSelector - selector or element
+ * @param {string|Element} formSelector - selector or element
  * @param {object} options
- * @return {jQuery} Element itself
  */
 export function classifyForm(formSelector, options = {}) {
-    const $form = $(formSelector);
-    const $inputs = $form.find(inputTagNames.join(', '));
+    const form = typeof formSelector === 'string' ? document.querySelector(formSelector) : formSelector;
+    if (!form) return;
+    const inputs = form.querySelectorAll(inputTagNames.join(', '));
 
     // Obtain options
     const { formFieldClass = 'form-field' } = options;
 
     // Classify each input in a form
-    $inputs.each((__, input) => {
+    inputs.forEach(input => {
         classifyInput(input, formFieldClass);
     });
-
-    return $form;
 }
 
 /**
  * Get id from given field
- * @param {object} $field JQuery field object
+ * @param {Element} field DOM element
  * @return {string}
  */
-function getFieldId($field) {
-    const fieldId = $field.prop('name').match(/(\[.*\])/);
+function getFieldId(field) {
+    const fieldId = (field.name || '').match(/(\[.*\])/);
 
     if (fieldId && fieldId.length !== 0) {
         return fieldId[0];
@@ -110,17 +91,16 @@ function getFieldId($field) {
 
 /**
  * Insert hidden field after State/Province field
- * @param {object} $stateField JQuery field object
+ * @param {Element} stateField DOM element
  */
-function insertStateHiddenField($stateField) {
-    const fieldId = getFieldId($stateField);
-    const stateFieldAttrs = {
-        type: 'hidden',
-        name: `FormFieldIsText${fieldId}`,
-        value: '1',
-    };
+function insertStateHiddenField(stateField) {
+    const fieldId = getFieldId(stateField);
+    const hiddenInput = document.createElement('input');
+    hiddenInput.type = 'hidden';
+    hiddenInput.name = `FormFieldIsText${fieldId}`;
+    hiddenInput.value = '1';
 
-    $stateField.after($('<input />', stateFieldAttrs));
+    stateField.insertAdjacentElement('afterend', hiddenInput);
 }
 
 /**
@@ -132,17 +112,16 @@ function announceInputErrorMessage({ element, result }) {
     if (result) {
         return;
     }
-    const activeInputContainer = $(element).parent();
+    const activeInputContainer = element.parentElement;
+    if (!activeInputContainer) return;
     // the reason for using span tag is nod-validate lib
     // which does not add error message class while initialising form.
     // specific class is added since it can be multiple spans
-    const errorMessage = $(activeInputContainer).find('span.form-inlineMessage');
+    const errorMessage = activeInputContainer.querySelector('span.form-inlineMessage');
 
-    if (errorMessage.length) {
-        const $errMessage = $(errorMessage[0]);
-
-        if (!$errMessage.attr('role')) {
-            $errMessage.attr('role', 'alert');
+    if (errorMessage) {
+        if (!errorMessage.getAttribute('role')) {
+            errorMessage.setAttribute('role', 'alert');
         }
     }
 }
@@ -180,7 +159,7 @@ const Validators = {
     setPasswordValidation: (validator, passwordSelector, password2Selector, requirements, {
         onEmptyPasswordErrorText, onConfirmPasswordErrorText, onMismatchPasswordErrorText, onNotValidPasswordErrorText,
     }, isOptional) => {
-        const $password = $(passwordSelector);
+        const passwordEl = document.querySelector(passwordSelector);
         const passwordValidations = [
             {
                 selector: passwordSelector,
@@ -227,7 +206,7 @@ const Validators = {
             {
                 selector: password2Selector,
                 validate: (cb, val) => {
-                    const result = val === $password.val();
+                    const result = passwordEl ? val === passwordEl.value : false;
 
                     cb(result);
                 },
@@ -239,14 +218,9 @@ const Validators = {
     },
 
     /**
-     * Validate password fields
+     * Validate price range
      * @param {Nod} validator
      * @param {Object} selectors
-     * @param {string} selectors.errorSelector
-     * @param {string} selectors.fieldsetSelector
-     * @param {string} selectors.formSelector
-     * @param {string} selectors.maxPriceSelector
-     * @param {string} selectors.minPriceSelector
      */
     setMinMaxPriceValidation: (validator, selectors, priceValidationErrorTexts = {}) => {
         const {
@@ -320,27 +294,27 @@ const Validators = {
 
     /**
      * Removes classes from dirty form if previously checked
-     * @param field
+     * @param {Element} field - DOM element with data-field-type attribute
      */
     cleanUpStateValidation: (field) => {
-        const $fieldClassElement = $((`[data-type="${field.data('fieldType')}"]`));
+        const fieldType = field.dataset ? field.dataset.fieldType : '';
+        const fieldClassElement = document.querySelector(`[data-type="${fieldType}"]`);
 
-        Object.keys(nod.classes).forEach((value) => {
-            if ($fieldClassElement.hasClass(nod.classes[value])) {
-                $fieldClassElement.removeClass(nod.classes[value]);
-            }
-        });
+        if (fieldClassElement) {
+            Object.keys(nod.classes).forEach((value) => {
+                fieldClassElement.classList.remove(nod.classes[value]);
+            });
+        }
     },
 
     /**
      * Handles zip/postal code validation based on whether it's required
-     * Removes existing validation, then adds it back if required or cleans up if not
      * @param {Nod} validator - The nod validator instance
-     * @param {jQuery} $zipElement - The zip/postal code field element
+     * @param {Element} zipElement - The zip/postal code field element
      * @param {string} errorText - The error message to display if validation fails
      */
-    handleZipValidation: (validator, $zipElement, errorText) => {
-        if ($zipElement.length === 0) {
+    handleZipValidation: (validator, zipElement, errorText) => {
+        if (!zipElement) {
             return;
         }
 
@@ -348,14 +322,14 @@ const Validators = {
         // Note: Don't use getStatus() before remove() - getStatus() can corrupt the validator's
         // internal state by creating a checkHandler without a mediator if the element
         // wasn't previously registered. remove() is safe to call on unregistered elements.
-        validator.remove($zipElement);
+        validator.remove(zipElement);
 
-        const isZipRequired = $zipElement.prop('required');
+        const isZipRequired = zipElement.required;
 
         if (isZipRequired) {
-            Validators.setStateCountryValidation(validator, $zipElement, errorText);
+            Validators.setStateCountryValidation(validator, zipElement, errorText);
         } else {
-            Validators.cleanUpStateValidation($zipElement);
+            Validators.cleanUpStateValidation(zipElement);
         }
     },
 };

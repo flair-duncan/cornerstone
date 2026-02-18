@@ -3,56 +3,69 @@
  * and disabled select placeholder element.
  *
  * This approach is required rather than simply hiding the option because
- * hidden option can still be included when serializeArray() is called and
+ * hidden option can still be included when form serialization is called and
  * cause wrong value to be submitted.
  * (eg. if you have option 1, 2, 3 and 2 is hidden, when you select 3,
- * serializeArray() will use the value of 2 instead of 3)
+ * serialization will use the value of 2 instead of 3)
  */
-function toggleOption(show) {
-    const currentSelectElement = $(this).closest('select'); // the select containing this
-    let disabledSelectElement; // the disabled select element
-    let selectElement; // the real select element
 
-    if (currentSelectElement.is(':disabled')) {
+// WeakMaps to store linked select references and option indices (replaces jQuery .data())
+const linkedSelectMap = new WeakMap();
+const optionIndexMap = new WeakMap();
+
+/**
+ * Toggle visibility of a select option by moving it between the real select
+ * and a hidden disabled select.
+ * @param {Element} optionEl - The <option> element to toggle
+ * @param {boolean} show - true to show, false to hide
+ */
+export default function toggleOption(optionEl, show) {
+    const currentSelectElement = optionEl.closest('select');
+    if (!currentSelectElement) return;
+
+    let disabledSelectElement;
+    let selectElement;
+
+    if (currentSelectElement.disabled) {
         disabledSelectElement = currentSelectElement;
-        selectElement = disabledSelectElement.data('linkedSelectElement');
+        selectElement = linkedSelectMap.get(disabledSelectElement);
     } else {
         selectElement = currentSelectElement;
-        disabledSelectElement = currentSelectElement.data('linkedSelectElement');
+        disabledSelectElement = linkedSelectMap.get(selectElement);
         if (!disabledSelectElement) {
             // create the disabled placeholder select element
-            disabledSelectElement = $('<select>')
-                .prop('disabled', true)
-                .hide()
-                .attr('name', currentSelectElement.attr('name'))
-                .addClass(currentSelectElement.attr('class'))
-                .data('linkedSelectElement', selectElement)
-                .insertAfter(selectElement);
+            disabledSelectElement = document.createElement('select');
+            disabledSelectElement.disabled = true;
+            disabledSelectElement.style.display = 'none';
+            disabledSelectElement.name = selectElement.name;
+            disabledSelectElement.className = selectElement.className;
 
-            selectElement.data('linkedSelectElement', disabledSelectElement);
+            linkedSelectMap.set(disabledSelectElement, selectElement);
+            linkedSelectMap.set(selectElement, disabledSelectElement);
+
+            selectElement.insertAdjacentElement('afterend', disabledSelectElement);
         }
     }
 
     // save the selected option
-    const selectedOption = selectElement.find('option:selected');
+    const selectedValue = selectElement.value;
 
     // move the option to the correct select element if required
-    if (currentSelectElement.is(':disabled') && show) {
-        const previousIndex = this.data('index');
-        const $elementNowAtPreviousIndex = selectElement.find('option').eq(previousIndex);
+    if (currentSelectElement.disabled && show) {
+        const previousIndex = optionIndexMap.get(optionEl) || 0;
+        const options = Array.from(selectElement.options);
+        const elementAtPreviousIndex = options[previousIndex];
 
-        if ($elementNowAtPreviousIndex.length) {
-            this.insertBefore($elementNowAtPreviousIndex);
+        if (elementAtPreviousIndex) {
+            selectElement.insertBefore(optionEl, elementAtPreviousIndex);
         } else {
-            $(this).appendTo(selectElement);
+            selectElement.appendChild(optionEl);
         }
-    } else if (!currentSelectElement.is(':disabled') && !show) {
-        this.data('index', currentSelectElement.find('option').index(this));
-        $(this).prependTo(disabledSelectElement);
+    } else if (!currentSelectElement.disabled && !show) {
+        optionIndexMap.set(optionEl, Array.from(currentSelectElement.options).indexOf(optionEl));
+        disabledSelectElement.insertBefore(optionEl, disabledSelectElement.firstChild);
     }
 
-    // make sure the option is still selected
-    selectedOption.prop('selected', true);
+    // make sure the previously selected option is still selected
+    selectElement.value = selectedValue;
 }
-
-$.fn.toggleOption = toggleOption;
